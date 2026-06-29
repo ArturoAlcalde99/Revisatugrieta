@@ -1,0 +1,302 @@
+class Component extends DCLogic {
+  state = { posts: [], photo: null, photoBlob: null, result: null, loading: false, postsLoading: true };
+
+  componentDidMount() {
+    this._charts = [];
+    this.formRef = React.createRef();
+    this.initCharts();
+    this.waitForFirebase(() => this.subscribePosts());
+  }
+  componentWillUnmount() {
+    (this._charts || []).forEach(c => { try { c.destroy(); } catch (e) {} });
+    if (this._unsub) this._unsub();
+  }
+
+  waitForFirebase(cb) {
+    if (window.rgFirebaseReady && window.rgFirebase) { cb(); return; }
+    setTimeout(() => this.waitForFirebase(cb), 120);
+  }
+
+  initCharts() {
+    if (!window.Chart) { this._t = setTimeout(() => this.initCharts(), 120); return; }
+    const Chart = window.Chart;
+    Chart.defaults.font.family = "'Helvetica Neue', Arial, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = "#6B6358";
+    const RED = "#A52A2A", AMBER = "#B35A00", BLUE = "#1A3A5C";
+    const grid = "rgba(0,0,0,0.06)";
+    const anim = { duration: 350 };
+
+    const line = document.getElementById("rgChartLine");
+    if (line && !line._rg) {
+      line._rg = true;
+      this._charts.push(new Chart(line.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: ["24 jun", "25 jun", "26 jun", "27 jun", "28 jun"],
+          datasets: [{
+            label: "Fallecidos reportados",
+            data: [null, 164, 235, 920, 1400],
+            borderColor: RED,
+            backgroundColor: "rgba(165,42,42,0.12)",
+            fill: true,
+            tension: 0.25,
+            spanGaps: true,
+            pointBackgroundColor: RED,
+            pointRadius: 4,
+            borderWidth: 2.2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: anim,
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: "#1A1A1A" } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: grid }, ticks: { padding: 6 } },
+            x: { grid: { display: false } }
+          }
+        }
+      }));
+    }
+
+    const donut = document.getElementById("rgChartDonut");
+    if (donut && !donut._rg) {
+      donut._rg = true;
+      this._charts.push(new Chart(donut.getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: ["Fallecidos", "Heridos", "Bajo escombros"],
+          datasets: [{
+            data: [1400, 3360, 50000],
+            backgroundColor: [RED, AMBER, BLUE],
+            borderColor: "#fafaf8",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: anim, cutout: "58%",
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 11, padding: 12, font: { size: 11.5 } } },
+            tooltip: { backgroundColor: "#1A1A1A" }
+          }
+        }
+      }));
+    }
+
+    const bar = document.getElementById("rgChartBar");
+    if (bar && !bar._rg) {
+      bar._rg = true;
+      this._charts.push(new Chart(bar.getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: ["La Guaira", "Caracas", "Yaracuy", "Miranda"],
+          datasets: [
+            { label: "Colapsados", data: [100, 80, 40, 20], backgroundColor: RED },
+            { label: "Con daños", data: [80, 120, 60, 45], backgroundColor: AMBER }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: anim,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 11, padding: 12, font: { size: 11.5 } } },
+            tooltip: { backgroundColor: "#1A1A1A" }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: grid } },
+            x: { grid: { display: false } }
+          }
+        }
+      }));
+    }
+  }
+
+  // ---- Firestore: suscripción en tiempo real al Muro Comunitario ----
+  subscribePosts() {
+    const fb = window.rgFirebase;
+    const q = fb.query(fb.collection(fb.db, "grietas"), fb.orderBy("fecha", "desc"));
+    this._unsub = fb.onSnapshot(q, (snap) => {
+      const posts = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          ubicacion: data.ubicacion, autor: data.autor, elemento: data.elemento,
+          ancho: data.ancho, senales: data.senales || [], descripcion: data.descripcion,
+          foto: data.foto || null, urgencia: data.urgencia,
+          fecha: data.fecha && data.fecha.toMillis ? data.fecha.toMillis() : Date.now(),
+          comentarios: data.comentarios || []
+        };
+      });
+      this.setState({ posts, postsLoading: false });
+    }, (err) => {
+      console.error("Error leyendo Firestore:", err);
+      this.setState({ postsLoading: false });
+    });
+  }
+
+  computeUrgency(ancho, senales, elemento) {
+    const s = new Set(senales);
+    const force = s.has("El muro está abombado o inclinado") || s.has("Se cae el concreto / se ve la cabilla");
+    let score = 0;
+    if (elemento === "Columna" || elemento === "Viga") score += 3;
+    else if (elemento === "Losa / techo") score += 2;
+    if (s.has("Grieta diagonal o en escalera")) score += 2;
+    if (s.has("Atraviesa el muro (se ve luz al otro lado)")) score += 3;
+    if (s.has("Puerta o ventana que se traba")) score += 2;
+    if (s.has("Nuevas grietas o ruidos tras las réplicas")) score += 2;
+    const aw = { "Menos de 1 mm (capilar)": 0, "1–5 mm": 1, "5–15 mm": 2, "Más de 15 mm": 4 };
+    score += aw[ancho] || 0;
+    if (force || ancho === "Más de 15 mm" || score >= 6) return "rojo";
+    if (score >= 3) return "ambar";
+    return "verde";
+  }
+
+  resultBanner(urgencia, published) {
+    const pre = published ? "Caso publicado en el Muro Comunitario. " : "";
+    if (urgencia === "rojo") return {
+      style: { background: "#FDF0F0", border: "1px solid #e6b3b3", borderRadius: "8px", padding: "14px 16px", color: "#7a1f1f" },
+      title: "Urgencia ALTA — Evacúa y llama al 171",
+      text: pre + "Las señales sugieren posible riesgo estructural. No permanezcas en el inmueble y solicita inspección profesional de inmediato."
+    };
+    if (urgencia === "ambar") return {
+      style: { background: "#FFF5E6", border: "1px solid #e6c98f", borderRadius: "8px", padding: "14px 16px", color: "#7a4a00" },
+      title: "Requiere revisión profesional",
+      text: pre + "El daño puede ser estructural. Evita usar la zona afectada y gestiona una evaluación con un ingeniero. Vuelve a revisar tras cada réplica."
+    };
+    return {
+      style: { background: "#EEF6EE", border: "1px solid #bcd6bd", borderRadius: "8px", padding: "14px 16px", color: "#27502a" },
+      title: "Vigilar",
+      text: pre + "Por ahora parece daño menor. Toma fotos con una referencia (una moneda) para comparar y revisa de nuevo si crece o aparecen nuevas grietas."
+    };
+  }
+
+  // ---- Foto: previsualización local + se sube a Storage al publicar ----
+  onPhoto = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 1000;
+        let w = img.width, h = img.height;
+        if (w > max || h > max) { const r = Math.min(max / w, max / h); w = Math.round(w * r); h = Math.round(h * r); }
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL("image/jpeg", 0.82);
+        c.toBlob((blob) => {
+          this.setState({ photo: dataUrl, photoBlob: blob });
+        }, "image/jpeg", 0.82);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  removePhoto = () => this.setState({ photo: null, photoBlob: null });
+
+  // ---- Publicar: sube foto a Storage (si hay) y guarda el caso en Firestore ----
+  onSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.loading) return;
+    const f = this.formRef.current;
+    if (!f) return;
+    const ubicacion = (f.querySelector('[name="ubicacion"]').value || "").trim();
+    if (!ubicacion) {
+      this.setState({ result: { style: { background: "#FDF0F0", border: "1px solid #e6b3b3", borderRadius: "8px", padding: "14px 16px", color: "#7a1f1f" }, title: "Falta la ubicación", text: "Indica al menos dónde está la grieta para poder publicar tu caso." } });
+      return;
+    }
+    const autor = (f.querySelector('[name="autor"]').value || "").trim() || "Anónimo";
+    const anchoEl = f.querySelector('[name="ancho"]:checked');
+    const ancho = anchoEl ? anchoEl.value : "No especificado";
+    const elementoEl = f.querySelector('[name="elemento"]:checked');
+    const elemento = elementoEl ? elementoEl.value : "No especificado";
+    const descripcion = (f.querySelector('[name="descripcion"]').value || "").trim();
+    const senales = Array.prototype.slice.call(f.querySelectorAll('[name="senal"]:checked')).map(c => c.value);
+    const urgencia = this.computeUrgency(ancho, senales, elemento);
+
+    this.setState({ loading: true });
+
+    try {
+      const fb = window.rgFirebase;
+      let fotoUrl = null;
+
+      if (this.state.photoBlob) {
+        const path = `grietas/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+        const storageRef = fb.ref(fb.storage, path);
+        await fb.uploadBytes(storageRef, this.state.photoBlob, { contentType: "image/jpeg" });
+        fotoUrl = await fb.getDownloadURL(storageRef);
+      }
+
+      await fb.addDoc(fb.collection(fb.db, "grietas"), {
+        ubicacion, autor, elemento, ancho, senales, descripcion,
+        foto: fotoUrl, urgencia, fecha: fb.serverTimestamp(), comentarios: []
+      });
+
+      this.setState({ photo: null, photoBlob: null, loading: false, result: this.resultBanner(urgencia, true) });
+      f.reset();
+    } catch (err) {
+      console.error("Error publicando en Firebase:", err);
+      this.setState({
+        loading: false,
+        result: {
+          style: { background: "#FDF0F0", border: "1px solid #e6b3b3", borderRadius: "8px", padding: "14px 16px", color: "#7a1f1f" },
+          title: "No se pudo publicar",
+          text: "Hubo un error guardando tu caso. Revisa tu conexión e inténtalo de nuevo en unos segundos."
+        }
+      });
+    }
+  };
+
+  addComment = async (postId) => {
+    const input = document.getElementById("cmt-" + postId);
+    if (!input) return;
+    const txt = (input.value || "").trim();
+    if (!txt) return;
+    input.value = "";
+    try {
+      const fb = window.rgFirebase;
+      const ref = fb.doc(fb.db, "grietas", postId);
+      await fb.updateDoc(ref, { comentarios: fb.arrayUnion({ autor: "Tú", txt }) });
+      // onSnapshot actualiza el estado automáticamente
+    } catch (err) {
+      console.error("Error añadiendo comentario:", err);
+    }
+  };
+
+  timeAgo(ts) {
+    const min = Math.floor((Date.now() - ts) / 60000);
+    if (min < 1) return "hace un momento";
+    if (min < 60) return "hace " + min + " min";
+    const h = Math.floor(min / 60);
+    if (h < 24) return "hace " + h + " h";
+    const d = Math.floor(h / 24);
+    return "hace " + d + (d === 1 ? " día" : " días");
+  }
+
+  renderVals() {
+    const urg = {
+      rojo: { bg: "#FDF0F0", col: "#A52A2A", label: "Urgente · Evacuar" },
+      ambar: { bg: "#FFF5E6", col: "#B35A00", label: "Revisión profesional" },
+      verde: { bg: "#EEF6EE", col: "#2C5F2E", label: "Vigilar" }
+    };
+    const postsView = (this.state.posts || []).map(p => {
+      const u = urg[p.urgencia] || urg.verde;
+      return {
+        id: p.id, ubicacion: p.ubicacion, autor: p.autor, elementoLabel: p.elemento || "No especificado", anchoLabel: p.ancho || "No especificado",
+        descripcion: p.descripcion, foto: p.foto, hasFoto: !!p.foto,
+        senales: p.senales || [], hasSenales: (p.senales || []).length > 0,
+        comentarios: p.comentarios || [],
+        badgeLabel: u.label,
+        badgeStyle: { display: "inline-block", padding: "4px 11px", borderRadius: "999px", fontSize: "11.5px", fontWeight: 700, background: u.bg, color: u.col },
+        cardAccent: u.col,
+        timeLabel: this.timeAgo(p.fecha),
+        onComment: () => this.addComment(p.id)
+      };
+    });
+    return {
+      formRef: this.formRef, onSubmit: this.onSubmit, onPhoto: this.onPhoto, removePhoto: this.removePhoto,
+      photo: this.state.photo, hasPhoto: !!this.state.photo,
+      result: this.state.result,
+      postsView, postsCount: postsView.length
+    };
+  }
+}
