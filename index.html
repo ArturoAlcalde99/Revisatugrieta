@@ -466,6 +466,16 @@
                 <span style="{{ post.badgeStyle }}">{{ post.badgeLabel }}</span>
                 <span style="font-size:12px;color:#9a9285;">{{ post.timeLabel }}</span>
               </div>
+              <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;background:#faf7f1;border:1px solid #eee6d8;border-radius:7px;padding:7px 10px;">
+                  <span style="font-size:11.5px;color:#6B6358;font-weight:600;">Ajustar urgencia:</span>
+                  <select onChange="{{ post.onUrgencyChange }}" style="font-size:12.5px;font-family:inherit;border:1px solid #CCC2B4;border-radius:6px;padding:4px 7px;background:#fff;color:#1A1A1A;">
+                    <option value="rojo" selected="{{ post.isRojo }}">🔴 Urgente · Evacuar</option>
+                    <option value="ambar" selected="{{ post.isAmbar }}">🟠 Revisión profesional</option>
+                    <option value="verde" selected="{{ post.isVerde }}">🟢 Vigilar</option>
+                  </select>
+                </div>
+              </sc-if>
               <h3 style="font-family:Georgia,serif;font-size:18px;margin:0;font-weight:600;line-height:1.25;">{{ post.ubicacion }}</h3>
               <div style="font-size:12.5px;color:#6B6358;">Elemento: {{ post.elementoLabel }} · Ancho: {{ post.anchoLabel }} · {{ post.autor }}</div>
               <p style="font-size:13.5px;line-height:1.55;color:#3a352e;margin:0;">{{ post.descripcion }}</p>
@@ -851,6 +861,19 @@ class Component extends DCLogic {
     } catch (err) { console.error("Error añadiendo comentario:", err); }
   };
 
+  changeUrgency = async (postId, nuevaUrgencia) => {
+    if (!this.state.engineerUser || !this.state.engineerApproved) return;
+    const nombreIngeniero = "Ing. " + (this.state.engineerUser.displayName || this.state.engineerUser.email);
+    try {
+      const fb = window.rgFirebase;
+      const labels = { rojo: "Urgente · Evacuar", ambar: "Revisión profesional", verde: "Vigilar" };
+      await fb.updateDoc(fb.doc(fb.db, "grietas", postId), {
+        urgencia: nuevaUrgencia,
+        comentarios: fb.arrayUnion({ autor: nombreIngeniero, txt: `Ajustó el nivel de urgencia a: ${labels[nuevaUrgencia]}` })
+      });
+    } catch (err) { console.error("Error cambiando urgencia:", err); }
+  };
+
   timeAgo(ts) {
     const min = Math.floor((Date.now() - ts) / 60000);
     if (min < 1) return "hace un momento";
@@ -879,7 +902,11 @@ class Component extends DCLogic {
         badgeStyle: { display: "inline-block", padding: "4px 11px", borderRadius: "999px", fontSize: "11.5px", fontWeight: 700, background: u.bg, color: u.col },
         cardAccent: u.col,
         timeLabel: this.timeAgo(p.fecha),
-        onComment: () => this.addComment(p.id)
+        onComment: () => this.addComment(p.id),
+        onUrgencyChange: (e) => this.changeUrgency(p.id, e.target.value),
+        isRojo: p.urgencia === "rojo",
+        isAmbar: p.urgencia === "ambar",
+        isVerde: p.urgencia === "verde" || !p.urgencia
       };
     });
     return {
