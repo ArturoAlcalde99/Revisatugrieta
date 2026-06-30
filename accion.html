@@ -177,6 +177,9 @@
         <div style="display:flex;flex-direction:column;gap:10px;">
           <span style="font-size:13.5px;font-weight:700;">Video de la grieta (opcional, máx. 30 segundos)</span>
           <p style="font-size:12.5px;color:#6B6358;margin:0;">Un video corto recorriendo la grieta puede ayudar más que una foto a entender su tamaño real.</p>
+          <div style="background:#EBF2FA;border:1px solid #bcd2ea;border-radius:8px;padding:10px 12px;">
+            <span style="font-size:12px;color:#1A3A5C;line-height:1.5;">💡 <strong>Tip de calidad:</strong> si grabas el video tocando este botón puede salir en baja resolución. Para mejor calidad, graba primero con la app de Cámara de tu teléfono y luego elige ese video desde tu galería aquí.</span>
+          </div>
           <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #CCC2B4;background:#000;">
               <video src="{{ videoPreview }}" controls style="width:100%;display:block;max-height:300px;"></video>
@@ -186,7 +189,7 @@
           <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ false }}">
             <label style="display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px dashed #c2b8a8;border-radius:10px;padding:22px;cursor:pointer;background:#faf7f1;color:#6B6358;font-size:14px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 10l5-3v10l-5-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="6" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/></svg>
-              <span>Toca para subir un video</span>
+              <span>Toca para grabar o elegir un video de tu galería</span>
               <input type="file" accept="video/*" onChange="{{ onVideo }}" style="display:none;"/>
             </label>
           </sc-if>
@@ -308,14 +311,35 @@
                 <video src="{{ post.video }}" controls style="width:100%;display:block;max-height:280px;"></video>
               </div>
             </sc-if>
-            <div style="padding:18px;display:flex;flex-direction:column;gap:11px;flex:1;">
+            <div style="padding:18px;display:flex;flex-direction:column;gap:14px;flex-1;">
+
+              <!-- Encabezado: estado + tiempo -->
               <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
                 <span style="{{ post.badgeStyle }}">{{ post.badgeLabel }}</span>
                 <span style="font-size:12px;color:#9a9285;">{{ post.timeLabel }}</span>
               </div>
+
+              <!-- Título y meta -->
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <h3 style="font-family:Georgia,serif;font-size:19px;margin:0;font-weight:600;line-height:1.25;">{{ post.ubicacion }}</h3>
+                <div style="font-size:12.5px;color:#6B6358;">{{ post.elementoLabel }} · {{ post.anchoLabel }}{{ post.medidaSufijo }} · {{ post.autor }}</div>
+              </div>
+
+              <p style="font-size:13.5px;line-height:1.55;color:#3a352e;margin:0;">{{ post.descripcion }}</p>
+
+              <sc-if value="{{ post.hasSenales }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                  <span style="font-size:11px;color:#9a9285;font-weight:600;">Señales:</span>
+                  <sc-for list="{{ post.senales }}" as="s" hint-placeholder-count="0">
+                    <span style="font-size:11.5px;background:#F4EFE8;border:1px solid #ddd4c5;color:#6B6358;padding:3px 9px;border-radius:999px;">{{ s }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <!-- Opiniones de ingenieros ya emitidas -->
               <sc-if value="{{ post.hasOpinions }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;flex-direction:column;gap:6px;background:#faf7f1;border:1px solid #eee6d8;border-radius:8px;padding:10px 12px;">
-                  <span style="font-size:11px;color:#6B6358;font-weight:700;text-transform:uppercase;letter-spacing:.3px;">Opinión de ingenieros</span>
+                <div style="display:flex;flex-direction:column;gap:7px;background:#faf7f1;border:1px solid #eee6d8;border-radius:10px;padding:12px 13px;">
+                  <span style="font-size:10.5px;color:#9a9285;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Opinión de ingenieros</span>
                   <sc-for list="{{ post.opinionsView }}" as="op" hint-placeholder-count="0">
                     <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">
                       <span style="{{ op.dotStyle }}"></span>
@@ -325,87 +349,93 @@
                   </sc-for>
                 </div>
               </sc-if>
+
+              <!-- Selector de opinión para ingenieros aprobados -->
               <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <span style="font-size:11.5px;color:#6B6358;font-weight:600;">Tu opinión profesional:</span>
-                  <select onChange="{{ post.onOpinionChange }}" style="font-size:12.5px;font-family:inherit;border:1px solid #CCC2B4;border-radius:6px;padding:4px 7px;background:#fff;color:#1A1A1A;">
-                    <option value="" selected="{{ post.myOpinionIsNone }}">Selecciona…</option>
+                <div style="display:flex;flex-direction:column;gap:7px;background:#EBF2FA;border:1px solid #bcd2ea;border-radius:10px;padding:12px 13px;">
+                  <span style="font-size:12px;color:#1A3A5C;font-weight:700;">🩺 Tu opinión profesional</span>
+                  <select onChange="{{ post.onOpinionChange }}" style="width:100%;font-size:13px;font-family:inherit;border:1px solid #CCC2B4;border-radius:8px;padding:9px 11px;background:#fff;color:#1A1A1A;">
+                    <option value="" selected="{{ post.myOpinionIsNone }}">Selecciona tu evaluación…</option>
                     <option value="rojo" selected="{{ post.myOpinionIsRojo }}">🔴 Urgente · Evacuar</option>
                     <option value="ambar" selected="{{ post.myOpinionIsAmbar }}">🟠 Revisión profesional</option>
                     <option value="verde" selected="{{ post.myOpinionIsVerde }}">🟢 Vigilar</option>
                   </select>
                 </div>
               </sc-if>
-              <h3 style="font-family:Georgia,serif;font-size:18px;margin:0;font-weight:600;line-height:1.25;">{{ post.ubicacion }}</h3>
-              <div style="font-size:12.5px;color:#6B6358;">Elemento: {{ post.elementoLabel }} · Ancho: {{ post.anchoLabel }}{{ post.medidaSufijo }} · {{ post.autor }}</div>
-              <p style="font-size:13.5px;line-height:1.55;color:#3a352e;margin:0;">{{ post.descripcion }}</p>
 
+              <!-- Videollamada -->
               <sc-if value="{{ post.videoLlamadaConfirmada }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#EEF6EE;border:1px solid #bdd9be;border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:7px;">
+                <div style="background:#EEF6EE;border:1px solid #bdd9be;border-radius:10px;padding:12px 13px;display:flex;flex-direction:column;gap:7px;">
                   <span style="font-size:12.5px;font-weight:700;color:#27502a;">📞 Videollamada confirmada</span>
                   <span style="font-size:12.5px;color:#3a352e;">{{ post.horarioConfirmadoLabel }} con {{ post.ingenieroConfirmadoNombre }}</span>
-                  <a href="{{ post.whatsappLink }}" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:7px;text-align:center;">Abrir WhatsApp</a>
+                  <a href="{{ post.whatsappLink }}" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;font-size:12.5px;font-weight:700;padding:9px 12px;border-radius:8px;text-align:center;">Abrir WhatsApp</a>
                 </div>
               </sc-if>
-
               <sc-if value="{{ post.videoLlamadaPendienteParaIngeniero }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#EBF2FA;border:1px solid #bcd2ea;border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:8px;">
+                <div style="background:#EBF2FA;border:1px solid #bcd2ea;border-radius:10px;padding:12px 13px;display:flex;flex-direction:column;gap:8px;">
                   <span style="font-size:12.5px;font-weight:700;color:#1A3A5C;">📞 Solicita videollamada — confirma un horario</span>
                   <sc-for list="{{ post.horariosView }}" as="h" hint-placeholder-count="0">
-                    <button type="button" onClick="{{ h.onConfirm }}" style="text-align:left;background:#fff;border:1px solid #CCC2B4;border-radius:7px;padding:8px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#1A1A1A;">Confirmar: {{ h.label }}</button>
+                    <button type="button" onClick="{{ h.onConfirm }}" style="text-align:left;background:#fff;border:1px solid #CCC2B4;border-radius:8px;padding:9px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#1A1A1A;">Confirmar: {{ h.label }}</button>
                   </sc-for>
                 </div>
               </sc-if>
-
               <sc-if value="{{ post.videoLlamadaPendienteInfo }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#F1EFE8;border:1px solid #ddd4c5;border-radius:8px;padding:10px 13px;">
-                  <span style="font-size:12px;color:#6B6358;font-style:italic;">📞 Esta persona solicitó una videollamada, pendiente de confirmar por un ingeniero.</span>
+                <div style="background:#F1EFE8;border:1px solid #ddd4c5;border-radius:10px;padding:11px 13px;">
+                  <span style="font-size:12px;color:#6B6358;font-style:italic;">📞 Solicitó videollamada, pendiente de confirmar por un ingeniero.</span>
                 </div>
               </sc-if>
 
-              <div style="background:#fff;border:1px solid #CCC2B4;border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:10px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+              <!-- Directorio colapsable -->
+              <div style="border:1px solid #CCC2B4;border-radius:10px;overflow:hidden;">
+                <button type="button" onClick="{{ post.onToggleDirectory }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:0;padding:11px 13px;cursor:pointer;font-family:inherit;text-align:left;">
                   <span style="font-size:12.5px;font-weight:700;color:#1A3A5C;display:flex;align-items:center;gap:6px;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h7" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h7" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round"/></svg>
                     Directorio de ingenieros cercanos
                   </span>
-                  <a href="#directorio" style="font-size:11px;color:#1A3A5C;text-decoration:underline;">Ver todos →</a>
-                </div>
-                <input type="text" value="{{ post.directoryQuery }}" onInput="{{ post.onDirectorySearch }}" placeholder="Busca por zona, ej: Santa Fe" style="width:100%;padding:9px 11px;border:1px solid #CCC2B4;border-radius:8px;font-size:13px;font-family:inherit;background:#faf7f1;color:#1A1A1A;"/>
-                <sc-if value="{{ post.hasDirectoryResults }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;flex-direction:column;gap:7px;">
-                    <sc-for list="{{ post.directoryResults }}" as="d" hint-placeholder-count="0">
-                      <a href="{{ d.telLink }}" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F4EFE8;border:1px solid #e3dccf;border-radius:8px;padding:9px 12px;">
-                        <span style="display:flex;flex-direction:column;gap:1px;">
-                          <span style="font-size:13px;color:#1A1A1A;font-weight:700;">{{ d.nombre }}</span>
-                          <span style="font-size:11.5px;color:#6B6358;">{{ d.ubicacion }} · {{ d.universidad }}</span>
-                        </span>
-                        <span style="font-size:12px;color:#fff;font-weight:700;background:#1A3A5C;padding:6px 10px;border-radius:999px;white-space:nowrap;">📞 Llamar</span>
-                      </a>
+                  <span style="font-size:13px;color:#9a9285;">{{ post.directoryToggleIcon }}</span>
+                </button>
+                <sc-if value="{{ post.directoryOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:0 13px 13px;display:flex;flex-direction:column;gap:9px;border-top:1px solid #eee6d8;padding-top:11px;">
+                    <input type="text" value="{{ post.directoryQuery }}" onInput="{{ post.onDirectorySearch }}" placeholder="Busca por zona, ej: Santa Fe" style="width:100%;padding:9px 11px;border:1px solid #CCC2B4;border-radius:8px;font-size:13px;font-family:inherit;background:#faf7f1;color:#1A1A1A;"/>
+                    <sc-if value="{{ post.hasDirectoryResults }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:7px;">
+                        <sc-for list="{{ post.directoryResults }}" as="d" hint-placeholder-count="0">
+                          <a href="{{ d.telLink }}" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F4EFE8;border:1px solid #e3dccf;border-radius:8px;padding:9px 12px;">
+                            <span style="display:flex;flex-direction:column;gap:1px;">
+                              <span style="font-size:13px;color:#1A1A1A;font-weight:700;">{{ d.nombre }}</span>
+                              <span style="font-size:11.5px;color:#6B6358;">{{ d.ubicacion }} · {{ d.universidad }}</span>
+                            </span>
+                            <span style="font-size:12px;color:#fff;font-weight:700;background:#1A3A5C;padding:6px 10px;border-radius:999px;white-space:nowrap;">📞 Llamar</span>
+                          </a>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ post.directoryNoResults }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:12px;color:#9a9285;font-style:italic;">Sin coincidencias para "{{ post.directoryQuery }}".</span>
+                    </sc-if>
+                    <a href="directorio.html" style="font-size:11.5px;color:#1A3A5C;text-decoration:underline;">Ver directorio completo →</a>
+                    <span style="font-size:10.5px;color:#9a9285;line-height:1.4;">Contactos de egresados de ingeniería civil, no verificados individualmente por esta plataforma.</span>
+                  </div>
+                </sc-if>
+              </div>
+
+              <!-- Comentarios -->
+              <div style="border-top:1px solid #eee6d8;padding-top:13px;display:flex;flex-direction:column;gap:10px;">
+                <span style="font-size:11px;color:#9a9285;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">💬 Comentarios</span>
+                <sc-if value="{{ post.hasComentarios }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px;">
+                    <sc-for list="{{ post.comentarios }}" as="c" hint-placeholder-count="0">
+                      <div style="font-size:13px;line-height:1.5;color:#3a352e;background:#faf7f1;border-radius:8px;padding:10px 12px;"><strong style="color:#1A3A5C;font-weight:700;">{{ c.autor }}:</strong> {{ c.txt }}</div>
                     </sc-for>
                   </div>
                 </sc-if>
-                <sc-if value="{{ post.directoryNoResults }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:12px;color:#9a9285;font-style:italic;">Sin coincidencias para "{{ post.directoryQuery }}". Prueba con otra zona cercana, o <a href="#directorio" style="color:#1A3A5C;">ve el directorio completo</a>.</span>
+                <sc-if value="{{ post.noComentarios }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:12.5px;color:#9a9285;font-style:italic;">Aún no hay comentarios.</span>
                 </sc-if>
-                <span style="font-size:10.5px;color:#9a9285;line-height:1.4;">Contactos de egresados de ingeniería civil, no verificados individualmente por esta plataforma.</span>
-              </div>
-
-              <sc-if value="{{ post.hasSenales }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                  <sc-for list="{{ post.senales }}" as="s" hint-placeholder-count="0">
-                    <span style="font-size:11.5px;background:#F4EFE8;border:1px solid #ddd4c5;color:#6B6358;padding:3px 9px;border-radius:999px;">{{ s }}</span>
-                  </sc-for>
-                </div>
-              </sc-if>
-              <div style="margin-top:4px;border-top:1px solid #eee6d8;padding-top:12px;display:flex;flex-direction:column;gap:9px;">
-                <sc-for list="{{ post.comentarios }}" as="c" hint-placeholder-count="0">
-                  <div style="font-size:13px;line-height:1.5;color:#3a352e;background:#faf7f1;border-radius:8px;padding:9px 11px;"><strong style="color:#1A3A5C;font-weight:700;">{{ c.autor }}:</strong> {{ c.txt }}</div>
-                </sc-for>
                 <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
                   <div style="display:flex;gap:8px;">
-                    <input id="cmt-{{ post.id }}" type="text" placeholder="Escribe un comentario técnico…" style="flex:1;padding:9px 11px;border:1px solid #CCC2B4;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
-                    <button type="button" onClick="{{ post.onComment }}" style="background:#1A3A5C;color:#fff;border:0;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enviar</button>
+                    <input id="cmt-{{ post.id }}" type="text" placeholder="Escribe un comentario técnico…" style="flex:1;padding:9px 11px;border:1px solid #CCC2B4;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+                    <button type="button" onClick="{{ post.onComment }}" style="background:#1A3A5C;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enviar</button>
                   </div>
                 </sc-if>
                 <sc-if value="{{ engineerNotApproved }}" hint-placeholder-val="{{ false }}">
@@ -438,7 +468,7 @@
 <script type="text/x-dc" data-dc-script>
 
 class Component extends DCLogic {
-  state = { posts: [], photos: [], video: null, videoError: null, result: null, loading: false, postsLoading: true, showVideollamadaFields: false, directorySearch: {}, dirPageQuery: "", dirPageUniversidad: "",
+  state = { posts: [], photos: [], video: null, videoError: null, result: null, loading: false, postsLoading: true, showVideollamadaFields: false, directorySearch: {}, directoryOpen: {}, dirPageQuery: "", dirPageUniversidad: "",
             engineerUser: null, engineerApproved: false, engineerChecked: false };
 
   componentDidMount() {
@@ -622,9 +652,9 @@ class Component extends DCLogic {
     const file = e.target.files && e.target.files[0];
     e.target.value = "";
     if (!file) return;
-    const maxSizeMB = 30;
+    const maxSizeMB = 60;
     if (file.size > maxSizeMB * 1024 * 1024) {
-      this.setState({ videoError: `El video pesa demasiado (máx. ${maxSizeMB}MB). Intenta grabar uno más corto.` });
+      this.setState({ videoError: `El video pesa demasiado (máx. ${maxSizeMB}MB). Intenta grabar uno más corto o en menor calidad.` });
       return;
     }
     const url = URL.createObjectURL(file);
@@ -788,6 +818,10 @@ class Component extends DCLogic {
     this.setState(prev => ({ directorySearch: { ...prev.directorySearch, [postId]: value } }));
   };
 
+  onToggleDirectory = (postId) => {
+    this.setState(prev => ({ directoryOpen: { ...prev.directoryOpen, [postId]: !prev.directoryOpen[postId] } }));
+  };
+
   guessZoneFromUbicacion(ubicacion) {
     const dir = window.rgDirectorioIngenieros || [];
     if (!ubicacion) return "";
@@ -859,6 +893,8 @@ class Component extends DCLogic {
         video: p.video || null, hasVideo: !!p.video,
         senales: p.senales || [], hasSenales: (p.senales || []).length > 0,
         comentarios: p.comentarios || [],
+        hasComentarios: (p.comentarios || []).length > 0,
+        noComentarios: (p.comentarios || []).length === 0,
         badgeLabel: u.label,
         badgeStyle: { display: "inline-block", padding: "4px 11px", borderRadius: "999px", fontSize: "11.5px", fontWeight: 700, background: u.bg, color: u.col },
         cardAccent: u.col,
@@ -892,7 +928,10 @@ class Component extends DCLogic {
           telLink: `tel:${d.telefonoLink}`
         })),
         hasDirectoryResults: directoryResults.length > 0,
-        directoryNoResults: directoryQuery.trim().length >= 2 && directoryResults.length === 0
+        directoryNoResults: directoryQuery.trim().length >= 2 && directoryResults.length === 0,
+        directoryOpen: !!(this.state.directoryOpen && this.state.directoryOpen[p.id]),
+        directoryToggleIcon: (this.state.directoryOpen && this.state.directoryOpen[p.id]) ? "▲" : "▼",
+        onToggleDirectory: () => this.onToggleDirectory(p.id)
       };
     });
 
