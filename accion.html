@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, query, orderBy,
+    onSnapshot, doc, getDoc, updateDoc, arrayUnion, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getStorage, ref, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOXeF1EDWf-4va-O9bOn5YzWdOzdOkqMc",
+    authDomain: "revisatugrieta.firebaseapp.com",
+    projectId: "revisatugrieta",
+    storageBucket: "revisatugrieta.firebasestorage.app",
+    messagingSenderId: "611150807853",
+    appId: "1:611150807853:web:65791e60ba98fa5827c9a4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  window.rgFirebase = {
+    db, storage, collection, addDoc, query, orderBy,
+    onSnapshot, doc, getDoc, updateDoc, arrayUnion, serverTimestamp,
+    ref, uploadBytes, getDownloadURL,
+    auth, googleProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
+  };
+  window.rgFirebaseReady = true;
+  window.rgDirectorioIngenieros = [{"nombre": "Aitor Fernandez", "universidad": "Unimet", "anio": "2026", "ubicacion": "Los Samanes", "telefono": "+58 414-4716351", "telefonoLink": "+584144716351"}, {"nombre": "Alejandra Alibrandi", "universidad": "Unimet", "anio": "2017", "ubicacion": "Sebucan", "telefono": "04146858882", "telefonoLink": "+584146858882"}, {"nombre": "Alejandro Jaspe", "universidad": "UDO", "anio": "2022", "ubicacion": "El Tigre", "telefono": "04248157440", "telefonoLink": "+584248157440"}, {"nombre": "Alessandro Flora", "universidad": "UCV", "anio": "2023", "ubicacion": "Caracas", "telefono": "+584142260133", "telefonoLink": "+584142260133"}, {"nombre": "Alessandra Mazzaglia", "universidad": "Unimet", "anio": "2026", "ubicacion": "Santa Fe", "telefono": "04142102929", "telefonoLink": "+584142102929"}, {"nombre": "Ana Pacanins", "universidad": "Unimet", "anio": "2019", "ubicacion": "Altamira", "telefono": "04241070817", "telefonoLink": "+584241070817"}, {"nombre": "Andrés García", "universidad": "UCAB", "anio": "2023", "ubicacion": "Terrazas del Ávila", "telefono": "04123525039", "telefonoLink": "+584123525039"}, {"nombre": "Angel Lacruz", "universidad": "UCAB", "anio": "2023", "ubicacion": "San Bernardino", "telefono": "04164211858", "telefonoLink": "+584164211858"}, {"nombre": "Angel Marchena", "universidad": "UCV", "anio": "2023", "ubicacion": "El Paraíso", "telefono": "04126133311", "telefonoLink": "+584126133311"}, {"nombre": "Angello Sánchez", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Teques", "telefono": "04241894136", "telefonoLink": "+584241894136"}, {"nombre": "Arian Mier y Teran", "universidad": "Unimet", "anio": "2024", "ubicacion": "Hatillo", "telefono": "04241920209", "telefonoLink": "+584241920209"}, {"nombre": "Arianna Arenare", "universidad": "Unimet", "anio": "2025", "ubicacion": "Colinas de Bello Monte", "telefono": "0424-2543583", "telefonoLink": "+584242543583"}, {"nombre": "Bárbara Colmenares", "universidad": "UCV", "anio": "2026", "ubicacion": "Las Mercedes", "telefono": "04241331888", "telefonoLink": "+584241331888"}, {"nombre": "Blady Molina", "universidad": "Unimet", "anio": "2024", "ubicacion": "Palo Verde", "telefono": "04149725267", "telefonoLink": "+584149725267"}, {"nombre": "Brayan Malavé", "universidad": "UNEFA", "anio": "2023", "ubicacion": "La California", "telefono": "04149017864", "telefonoLink": "+584149017864"}, {"nombre": "Carlos Espinoza", "universidad": "UNEFA", "anio": "2015", "ubicacion": "Ciudad Bolívar", "telefono": "04148565487", "telefonoLink": "+584148565487"}, {"nombre": "Cesar Baute", "universidad": "Unimet", "anio": "2024", "ubicacion": "Santa Paula, El Cafetal", "telefono": "+58 4241512494", "telefonoLink": "+584241512494"}, {"nombre": "Cristina Hurtado", "universidad": "Unimet", "anio": "2024", "ubicacion": "Los Samanes", "telefono": "+584143137185", "telefonoLink": "+584143137185"}, {"nombre": "Daniel Hung", "universidad": "UCV", "anio": "1985", "ubicacion": "Los Ruices", "telefono": "04129891838", "telefonoLink": "+584129891838"}, {"nombre": "Daniela Castillo", "universidad": "Unimet", "anio": "2023", "ubicacion": "El Hatillo", "telefono": "04146567867", "telefonoLink": "+584146567867"}, {"nombre": "David Gutiérrez", "universidad": "USM", "anio": "2011", "ubicacion": "Urb. Miranda", "telefono": "04242525273", "telefonoLink": "+584242525273"}, {"nombre": "Diego Maceira", "universidad": "Unimet", "anio": "2023", "ubicacion": "El Cafetal", "telefono": "04222889740", "telefonoLink": "+584222889740"}, {"nombre": "Dionicio Romero", "universidad": "UCAB", "anio": "2025", "ubicacion": "España", "telefono": "+34 623164500", "telefonoLink": "+34623164500"}, {"nombre": "Eduardo Alvarado", "universidad": "UCAB", "anio": "2025", "ubicacion": "Av. San Martín", "telefono": "04129097198", "telefonoLink": "+584129097198"}, {"nombre": "Eduardo Rivera", "universidad": "UCAB", "anio": "2024", "ubicacion": "Caracas", "telefono": "04241307632", "telefonoLink": "+584241307632"}, {"nombre": "Elizabeth Superlano", "universidad": "Unimet", "anio": "2021", "ubicacion": "Barcelona, España", "telefono": "+34 656499650", "telefonoLink": "+34656499650"}, {"nombre": "Elvis Páez", "universidad": "UNEFA", "anio": "2023", "ubicacion": "El Valle", "telefono": "04242788442", "telefonoLink": "+584242788442"}, {"nombre": "Emely Mahfoud", "universidad": "UCV", "anio": "2023", "ubicacion": "Caracas", "telefono": "04129909853", "telefonoLink": "+584129909853"}, {"nombre": "Erika Hernández Berú", "universidad": "UCAB (Esp. Estructural)", "anio": "2017", "ubicacion": "San Cristóbal, Táchira", "telefono": "04163760186", "telefonoLink": "+584163760186"}, {"nombre": "Ernesto Covuccia", "universidad": "Unimet", "anio": "2026", "ubicacion": "El Hatillo", "telefono": "04242871396", "telefonoLink": "+584242871396"}, {"nombre": "Ernesto Pullas", "universidad": "UCAB", "anio": "2021", "ubicacion": "San Bernardino", "telefono": "04128005415", "telefonoLink": "+584128005415"}, {"nombre": "Esther Rodríguez", "universidad": "Univ. de Carabobo", "anio": "2008", "ubicacion": "Montevideo, Uruguay", "telefono": "+59892318555", "telefonoLink": "+59892318555"}, {"nombre": "Euri Ardila", "universidad": "Univ. del Táchira", "anio": "2023", "ubicacion": "San Cristóbal, Táchira", "telefono": "04143752613", "telefonoLink": "+584143752613"}, {"nombre": "Fabiana Orellana", "universidad": "Unimet", "anio": "2021", "ubicacion": "USA", "telefono": "+13213154097", "telefonoLink": "+13213154097"}, {"nombre": "Genesis Moreno", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Club Hípico", "telefono": "04142736398", "telefonoLink": "+584142736398"}, {"nombre": "Génesis Morales", "universidad": "UCAB", "anio": "2025", "ubicacion": "Av. Libertador", "telefono": "04141553677", "telefonoLink": "+584141553677"}, {"nombre": "Gianfranco Ponzo", "universidad": "UNEFA / IMME", "anio": "2013", "ubicacion": "Isla de Margarita", "telefono": "+584148926161", "telefonoLink": "+584148926161"}, {"nombre": "Henry Sarmiento", "universidad": "UCV", "anio": "2009", "ubicacion": "La Victoria, Aragua", "telefono": "04163424559", "telefonoLink": "+584163424559"}, {"nombre": "Hugo Villalobos", "universidad": "UCAB", "anio": "2021", "ubicacion": "La Alta Florida", "telefono": "+584243479698", "telefonoLink": "+584243479698"}, {"nombre": "Isabella Valverde", "universidad": "Unimet", "anio": "2024", "ubicacion": "El Cafetal", "telefono": "+584120130202", "telefonoLink": "+584120130202"}, {"nombre": "Iván Salas", "universidad": "UCAB", "anio": "2018", "ubicacion": "San Agustín del Norte", "telefono": "04142417745", "telefonoLink": "+584142417745"}, {"nombre": "Ivan De Rugeriis", "universidad": "Unimet", "anio": "2024", "ubicacion": "Urbanización Miranda", "telefono": "04142665232", "telefonoLink": "+584142665232"}, {"nombre": "Javier Torres Sivoli", "universidad": "Univ. de La Plata, Argentina", "anio": "2021", "ubicacion": "Madrid", "telefono": "+34661876615", "telefonoLink": "+34661876615"}, {"nombre": "Jesús Alarze", "universidad": "UCV", "anio": "2017", "ubicacion": "Alto Prado", "telefono": "04241462393", "telefonoLink": "+584241462393"}, {"nombre": "Johan Cobo", "universidad": "IUP Santiago Mariño", "anio": "2012", "ubicacion": "Prados de María", "telefono": "04144557642", "telefonoLink": "+584144557642"}, {"nombre": "Jonathan Guerra", "universidad": "USM", "anio": "2002", "ubicacion": "Guarenas", "telefono": "04122940188", "telefonoLink": "+584122940188"}, {"nombre": "José Ángel Bernal Pérez", "universidad": "UJMV", "anio": "1997", "ubicacion": "Altos Mirandinos", "telefono": "0412-0122864", "telefonoLink": "+584120122864"}, {"nombre": "Jose Ramirez", "universidad": "IUP Santiago Mariño Maracay", "anio": "2020", "ubicacion": "Turmero, Aragua", "telefono": "04121995345", "telefonoLink": "+584121995345"}, {"nombre": "Josue Gonzalez", "universidad": "UCAB", "anio": "2024", "ubicacion": "Caracas", "telefono": "+584222465717", "telefonoLink": "+584222465717"}, {"nombre": "Josue Maldonado", "universidad": "UPT Mérida", "anio": "2025", "ubicacion": "Distrito Capital", "telefono": "04247126476", "telefonoLink": "+584247126476"}, {"nombre": "Juan Pablo Arocha", "universidad": "Unimet", "anio": "2025", "ubicacion": "Los Chorros", "telefono": "04143787518", "telefonoLink": "+584143787518"}, {"nombre": "Kenyer Carrasquel", "universidad": "UCV", "anio": "2018", "ubicacion": "Coche", "telefono": "04120113607", "telefonoLink": "+584120113607"}, {"nombre": "Kenji Ramírez", "universidad": "Unimet", "anio": "2026", "ubicacion": "El Cafetal", "telefono": "04241734069", "telefonoLink": "+584241734069"}, {"nombre": "Kevin Zerpa", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Dos Caminos", "telefono": "04129803113", "telefonoLink": "+584129803113"}, {"nombre": "Leopoldo Lecuna", "universidad": "Unimet", "anio": "2023", "ubicacion": "Los Palos Grandes", "telefono": "04140110114", "telefonoLink": "+584140110114"}, {"nombre": "Leyda Pérez", "universidad": "TSU Diseño Interior y Construcción Civil", "anio": "2012", "ubicacion": "Coche", "telefono": "04142330155", "telefonoLink": "+584142330155"}, {"nombre": "Loredana Espinoza", "universidad": "Unimet", "anio": "2025", "ubicacion": "Carrizal, Miranda", "telefono": "04140201259", "telefonoLink": "+584140201259"}, {"nombre": "Luis Baldó", "universidad": "UCAB", "anio": "2026", "ubicacion": "Chacao", "telefono": "04127055652", "telefonoLink": "+584127055652"}, {"nombre": "Luis Bayuelo", "universidad": "Unimet", "anio": "2004", "ubicacion": "Terrazas de Mampote", "telefono": "04143005146", "telefonoLink": "+584143005146"}, {"nombre": "Luis Larrazabal", "universidad": "Unimet", "anio": "2025", "ubicacion": "Cumbres de Curumo", "telefono": "04241360755", "telefonoLink": "+584241360755"}, {"nombre": "Luís Escalona", "universidad": "UCV / USM", "anio": "2018", "ubicacion": "Chacao/Los Palos Grandes", "telefono": "04126001480", "telefonoLink": "+584126001480"}, {"nombre": "Manuel Orozco", "universidad": "Unimet", "anio": "2024", "ubicacion": "La Florida", "telefono": "04242996706", "telefonoLink": "+584242996706"}, {"nombre": "Manuel Pagá", "universidad": "Unimet", "anio": "2022", "ubicacion": "Macaracuay", "telefono": "04242642244", "telefonoLink": "+584242642244"}, {"nombre": "Manuel Tapia U", "universidad": "Unimet", "anio": "1985", "ubicacion": "Caracas", "telefono": "04120119155", "telefonoLink": "+584120119155"}, {"nombre": "Marco Antonio Polo Cepeda", "universidad": "UCAB", "anio": "2024", "ubicacion": "Prados del Este", "telefono": "04128126021", "telefonoLink": "+584128126021"}, {"nombre": "Marcos Rodriguez", "universidad": "Unimet", "anio": "1992", "ubicacion": "El Cafetal", "telefono": "04149442569", "telefonoLink": "+584149442569"}, {"nombre": "María Daniela Avendaño", "universidad": "Unimet", "anio": "2025", "ubicacion": "Santa Fe", "telefono": "04243063273", "telefonoLink": "+584243063273"}, {"nombre": "Maria Estefania Parra", "universidad": "ULA", "anio": "2019", "ubicacion": "Caracas", "telefono": "04126730738", "telefonoLink": "+584126730738"}, {"nombre": "Maria Fernanda Raybaudi", "universidad": "UCAB", "anio": "2022", "ubicacion": "Chacao", "telefono": "+584241990916", "telefonoLink": "+584241990916"}, {"nombre": "María Gabriela Gutiérrez", "universidad": "UCLA", "anio": "2007", "ubicacion": "Caracas", "telefono": "04122467788", "telefonoLink": "+584122467788"}, {"nombre": "Maria Laura Isea", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Club Hípico", "telefono": "04129960846", "telefonoLink": "+584129960846"}, {"nombre": "Miguel Liendo", "universidad": "UCAB", "anio": "2017", "ubicacion": "Las Acacias", "telefono": "04123014208", "telefonoLink": "+584123014208"}, {"nombre": "Pablo Gonzalez", "universidad": "UCAB", "anio": "2023", "ubicacion": "El Paraíso", "telefono": "04142043380", "telefonoLink": "+584142043380"}, {"nombre": "Pedro Tineo", "universidad": "UCV", "anio": "2022", "ubicacion": "Chacao/Miranda", "telefono": "04126121942", "telefonoLink": "+584126121942"}, {"nombre": "Rafael Alcalá", "universidad": "IUT RC-UJMV", "anio": "2006/2012", "ubicacion": "Los Teques", "telefono": "04142163347", "telefonoLink": "+584142163347"}, {"nombre": "Rafael Fermín", "universidad": "Unimet", "anio": "2025", "ubicacion": "La Tahona", "telefono": "04123120570", "telefonoLink": "+584123120570"}, {"nombre": "Ricardo Algernon", "universidad": "UCAB", "anio": "1980", "ubicacion": "Terrazas Club Hípico", "telefono": "04241739220", "telefonoLink": "+584241739220"}, {"nombre": "Romer Marciales", "universidad": "IUP Santiago Mariño", "anio": "2012", "ubicacion": "Caracas", "telefono": "04264758571", "telefonoLink": "+584264758571"}, {"nombre": "Rubén Rincón", "universidad": "UNET", "anio": "2019", "ubicacion": "San Cristóbal, Táchira", "telefono": "+584247846216", "telefonoLink": "+584247846216"}, {"nombre": "Samira Yebaile", "universidad": "Unimet", "anio": "1999", "ubicacion": "Prados del Este/Santa Fe", "telefono": "04149175436", "telefonoLink": "+584149175436"}, {"nombre": "Sandra Alvarez", "universidad": "Unimet", "anio": "2012", "ubicacion": "El Hatillo", "telefono": "04241456675", "telefonoLink": "+584241456675"}, {"nombre": "Sandra Palacios", "universidad": "USM", "anio": "1996", "ubicacion": "La California Sur", "telefono": "04241342750", "telefonoLink": "+584241342750"}, {"nombre": "Santiago Pereira", "universidad": "UCAB", "anio": "2026", "ubicacion": "Colinas de Bello Monte", "telefono": "04143156994", "telefonoLink": "+584143156994"}, {"nombre": "Sebastián Cova", "universidad": "UCV", "anio": "2025", "ubicacion": "Caricuao", "telefono": "04245132309", "telefonoLink": "+584245132309"}, {"nombre": "Sebastián Olalquiaga", "universidad": "Unimet", "anio": "2023", "ubicacion": "Chacao", "telefono": "04146212573", "telefonoLink": "+584146212573"}, {"nombre": "Shaiel Centeno", "universidad": "Unimet", "anio": "2024", "ubicacion": "Lechería, Anzoátegui", "telefono": "04248065170", "telefonoLink": "+584248065170"}, {"nombre": "Stephanie Dávila", "universidad": "Unimet", "anio": "2025", "ubicacion": "Terrazas del Ávila", "telefono": "04125533104", "telefonoLink": "+584125533104"}, {"nombre": "Ulises Linares", "universidad": "UCAB", "anio": "2024", "ubicacion": "El Paraíso", "telefono": "04243671607", "telefonoLink": "+584243671607"}, {"nombre": "Vanessa Sosa", "universidad": "UCAB Guayana", "anio": "2011", "ubicacion": "Los Naranjos", "telefono": "04249071110", "telefonoLink": "+584249071110"}, {"nombre": "Veralucia Lemus", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Ruices", "telefono": "04241439325", "telefonoLink": "+584241439325"}, {"nombre": "Víctor Santana", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Ávila", "telefono": "04241614659", "telefonoLink": "+584241614659"}, {"nombre": "Victoria Romero", "universidad": "Unimet", "anio": "2025", "ubicacion": "Los Chaguaramos", "telefono": "04241650588", "telefonoLink": "+584241650588"}, {"nombre": "Wilneydi Medina", "universidad": "UCAB", "anio": "2024", "ubicacion": "Antimano", "telefono": "04242515624", "telefonoLink": "+584242515624"}];
+</script>
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:#F4EFE8;color:#1A1A1A;font-family:"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  #rg-map{height:420px;width:100%;border-radius:10px;border:1px solid #CCC2B4;z-index:1;}
+  @media (max-width:860px){
+    .rg-wallgrid{grid-template-columns:1fr!important;}
+    .rg-form2{grid-template-columns:1fr!important;}
+    #rg-map{height:300px;}
+  }
+</style>
+</helmet>
+
+<div style="min-height:100%;background:#F4EFE8;">
+  <!-- HEADER SIMPLE -->
+  <div style="background:#1A3A5C;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3 L22 20 H2 Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+        <line x1="12" y1="9" x2="12" y2="15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="17.6" r="1.05" fill="#fff"/>
+      </svg>
+      <span style="font-family:Georgia,serif;font-size:17px;color:#fff;font-weight:600;">Revisa tu Grieta</span>
+    </a>
+    <div style="display:flex;gap:14px;align-items:center;">
+      <a href="index.html" style="text-decoration:none;color:rgba(255,255,255,0.8);font-size:13.5px;">← Inicio</a>
+      <a href="directorio.html" style="text-decoration:none;color:rgba(255,255,255,0.8);font-size:13.5px;">Directorio</a>
+    </div>
+  </div>
+  <!-- NAV RÁPIDA INTERNA -->
+  <div style="background:#fff;border-bottom:1px solid #e3dccf;padding:11px 24px;text-align:center;">
+    <span style="font-size:13px;color:#6B6358;">Ir a: </span>
+    <a href="#formulario" style="font-size:13px;color:#1A3A5C;font-weight:600;text-decoration:none;margin:0 8px;">Evaluar grieta</a>·
+    <a href="#mapa-grietas" style="font-size:13px;color:#1A3A5C;font-weight:600;text-decoration:none;margin:0 8px;">Mapa</a>·
+    <a href="#muro-comunitario" style="font-size:13px;color:#1A3A5C;font-weight:600;text-decoration:none;margin:0 8px;">Muro Comunitario</a>
+  </div>
+
+<!-- 2. DISCLAIMER BANNER -->
+  <div style="background:#fff3cd;border-bottom:1px solid #e6c84a;padding:9px 24px;text-align:center;">
+    <span style="font-size:13px;color:#6b5d1f;line-height:1.5;">⚠️ Esta herramienta no sustituye una inspección estructural profesional. Ante peligro, evacúe y llame al 171.</span>
+  </div>
+
+  
+<!-- 8b. FORMULARIO -->
+  <section id="formulario" style="background:#F4EFE8;padding:62px 24px;border-top:1px solid #e3dccf;">
+    <div style="max-width:760px;margin:0 auto;">
+      <h2 style="font-family:Georgia,serif;font-size:32px;margin:0 0 10px;font-weight:600;">Evaluar y publicar tu grieta</h2>
+      <p style="font-size:16px;line-height:1.6;color:#6B6358;margin:0 0 28px;">Describe la grieta, sube fotos desde distintos ángulos y publica tu caso. Un ingeniero civil lo revisará y dejará su evaluación profesional.</p>
+
+      <form ref="{{ formRef }}" onSubmit="{{ onSubmit }}" style="background:#fff;border:1px solid #CCC2B4;border-radius:12px;padding:26px;display:flex;flex-direction:column;gap:22px;">
+
+        <label style="display:flex;flex-direction:column;gap:7px;">
+          <span style="font-size:13.5px;font-weight:700;">Ubicación <span style="color:#A52A2A;">*</span></span>
+          <input name="ubicacion" type="text" placeholder="Ej: Edificio Sucre, Catia, Caracas" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+        </label>
+
+        <label style="display:flex;flex-direction:column;gap:7px;">
+          <span style="font-size:13.5px;font-weight:700;">Tu nombre o sector (opcional)</span>
+          <input name="autor" type="text" placeholder="Ej: María G. · La Pastora" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+        </label>
+
+        <fieldset style="border:0;padding:0;margin:0;">
+          <legend style="font-size:13.5px;font-weight:700;padding:0;margin-bottom:8px;">¿En qué elemento está la grieta?</legend>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Pared / muro de relleno" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Pared / muro de relleno (tabique de bloques)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Columna" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Columna (pilar vertical de concreto)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Viga" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Viga (elemento horizontal de carga)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Losa / techo" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Losa / techo (placa, entrepiso)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Unión columna–muro" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Unión entre columna y muro</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="Escalera" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Escalera</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="elemento" value="No estoy seguro" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>No estoy seguro</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset style="border:0;padding:0;margin:0;">
+          <legend style="font-size:13.5px;font-weight:700;padding:0;margin-bottom:8px;">Ancho aproximado de la grieta</legend>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="ancho" value="Menos de 1 mm (capilar)" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Menos de 1 mm — fina como un cabello (capilar)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="ancho" value="1–5 mm" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>1–5 mm — cabe la uña</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="ancho" value="5–15 mm" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>5–15 mm — cabe una moneda</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="radio" name="ancho" value="Más de 15 mm" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Más de 15 mm — cabe un dedo</span></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
+            <span style="font-size:13px;color:#6B6358;">Medida exacta en mm (opcional, si la mediste)</span>
+            <input name="medidaExacta" type="number" step="0.1" min="0" placeholder="Ej: 18" style="width:140px;padding:9px 11px;border:1px solid #CCC2B4;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+          </label>
+        </fieldset>
+
+        <fieldset style="border:0;padding:0;margin:0;">
+          <legend style="font-size:13.5px;font-weight:700;padding:0;margin-bottom:8px;">Señales de alarma presentes</legend>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="Grieta diagonal o en escalera" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Grieta diagonal o en escalera</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="Atraviesa el muro (se ve luz al otro lado)" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Atraviesa el muro (se ve luz al otro lado)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="El muro está abombado o inclinado" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>El muro está abombado o inclinado</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="Se cae el concreto / se ve la cabilla" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Se cae el concreto / se ve la cabilla (acero)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="Puerta o ventana que se traba" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Puerta o ventana que se traba</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:6px 0;color:#1A1A1A;"><input type="checkbox" name="senal" value="Nuevas grietas o ruidos tras las réplicas" style="accent-color:#1A3A5C;width:17px;height:17px;"/><span>Nuevas grietas o ruidos tras las réplicas</span></label>
+          </div>
+        </fieldset>
+
+        <label style="display:flex;flex-direction:column;gap:7px;">
+          <span style="font-size:13.5px;font-weight:700;">Descripción</span>
+          <textarea name="descripcion" rows="3" placeholder="¿Cuándo apareció? ¿Dónde está exactamente? ¿Ha crecido tras las réplicas?" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;resize:vertical;min-height:80px;"></textarea>
+        </label>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <span style="font-size:13.5px;font-weight:700;">Fotos de la grieta (opcional, hasta 4)</span>
+          <p style="font-size:12.5px;color:#6B6358;margin:0;">Sube varias fotos desde distintos ángulos y, si puedes, incluye una moneda o tu mano junto a la grieta para dar escala.</p>
+          <label style="display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px dashed #c2b8a8;border-radius:10px;padding:22px;cursor:pointer;background:#faf7f1;color:#6B6358;font-size:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V5M12 5 8 9M12 5l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Toca para subir fotos</span>
+            <input type="file" accept="image/*" multiple="multiple" onChange="{{ onPhoto }}" style="display:none;"/>
+          </label>
+          <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+              <sc-for list="{{ photosView }}" as="ph" hint-placeholder-count="0">
+                <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #CCC2B4;aspect-ratio:1/1;">
+                  <img src="{{ ph.url }}" alt="Vista previa de la grieta" style="width:100%;height:100%;display:block;object-fit:cover;"/>
+                  <button type="button" onClick="{{ ph.onRemove }}" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.62);color:#fff;border:0;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;">Quitar</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <span style="font-size:13.5px;font-weight:700;">Video de la grieta (opcional, máx. 30 segundos)</span>
+          <p style="font-size:12.5px;color:#6B6358;margin:0;">Un video corto recorriendo la grieta puede ayudar más que una foto a entender su tamaño real.</p>
+          <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
+            <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid #CCC2B4;background:#000;">
+              <video src="{{ videoPreview }}" controls style="width:100%;display:block;max-height:300px;"></video>
+              <button type="button" onClick="{{ removeVideo }}" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.62);color:#fff;border:0;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit;">Quitar video</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ false }}">
+            <label style="display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px dashed #c2b8a8;border-radius:10px;padding:22px;cursor:pointer;background:#faf7f1;color:#6B6358;font-size:14px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 10l5-3v10l-5-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="6" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/></svg>
+              <span>Toca para subir un video</span>
+              <input type="file" accept="video/*" onChange="{{ onVideo }}" style="display:none;"/>
+            </label>
+          </sc-if>
+          <sc-if value="{{ videoError }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:#A52A2A;">{{ videoError }}</div>
+          </sc-if>
+        </div>
+
+        <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;background:#EBF2FA;border:1px solid #bcd2ea;border-radius:9px;padding:16px;">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+            <input type="checkbox" name="quiereVideollamada" onChange="{{ onToggleVideollamada }}" style="accent-color:#1A3A5C;width:18px;height:18px;"/>
+            <span style="font-size:14px;font-weight:700;color:#1A3A5C;">Quiero agendar una videollamada con un ingeniero</span>
+          </label>
+          <p style="font-size:12.5px;color:#6B6358;margin:0;">Una llamada en vivo puede ayudar a diagnosticar mejor que solo fotos, y evitar que el daño se agrave entre réplicas. La llamada se hace por WhatsApp.</p>
+
+          <sc-if value="{{ showVideollamadaFields }}" hint-placeholder-val="{{ false }}">
+            <label style="display:flex;flex-direction:column;gap:7px;">
+              <span style="font-size:13px;font-weight:700;">Tu número de WhatsApp <span style="color:#A52A2A;">*</span></span>
+              <input name="whatsapp" type="tel" placeholder="Ej: +58 412 1234567" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;">
+              <span style="font-size:13px;font-weight:700;">Opción de horario 1 <span style="color:#A52A2A;">*</span></span>
+              <input name="horario1" type="datetime-local" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;">
+              <span style="font-size:13px;font-weight:700;">Opción de horario 2 (opcional)</span>
+              <input name="horario2" type="datetime-local" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;">
+              <span style="font-size:13px;font-weight:700;">Opción de horario 3 (opcional)</span>
+              <input name="horario3" type="datetime-local" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+            </label>
+          </sc-if>
+        </fieldset>
+
+        <div style="background:#FFF5E6;border:1px solid #e6c98f;border-radius:9px;padding:15px 16px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:12.5px;line-height:1.55;color:#7a4a00;">
+            <strong>Aviso legal:</strong> esta plataforma ofrece una evaluación preliminar y orientativa, realizada por voluntarios a partir de fotos y descripciones que tú mismo proporcionas. No constituye una inspección estructural profesional ni un dictamen técnico certificado, y puede tener limitaciones: una foto no siempre refleja la dimensión real del daño, ni cubre otras zonas del inmueble que no se hayan fotografiado. Esta herramienta y sus voluntarios no asumen responsabilidad legal por decisiones tomadas a partir de esta evaluación. Ante cualquier duda, grieta de consideración, o si tienes la más mínima sospecha de riesgo, evacúa el inmueble y solicita la inspección presencial de un ingeniero estructural o de Protección Civil (171) de inmediato.
+          </div>
+          <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;">
+            <input type="checkbox" name="aceptaAviso" required style="accent-color:#1A3A5C;width:18px;height:18px;margin-top:1px;flex-shrink:0;"/>
+            <span style="font-size:13px;color:#5c4310;font-weight:600;">He leído y entiendo que esta es una evaluación preliminar y no sustituye una inspección profesional presencial.</span>
+          </label>
+        </div>
+
+        <button type="submit" style="background:#1A3A5C;color:#fff;border:0;border-radius:8px;padding:15px;font-size:15.5px;font-weight:700;cursor:pointer;font-family:inherit;">Publicar caso →</button>
+      </form>
+
+      <sc-if value="{{ result }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;background:rgba(26,26,26,0.55);display:flex;align-items:center;justify-content:center;z-index:2000;padding:20px;">
+          <div style="background:#fff;border-radius:14px;max-width:440px;width:100%;padding:30px 28px;box-shadow:0 12px 40px rgba(0,0,0,0.25);position:relative;">
+            <button type="button" onClick="{{ closeResult }}" style="position:absolute;top:14px;right:14px;background:transparent;border:0;font-size:20px;color:#9a9285;cursor:pointer;line-height:1;">✕</button>
+            <div style="font-size:42px;text-align:center;margin-bottom:6px;">✅</div>
+            <div style="font-weight:700;font-size:19px;text-align:center;margin-bottom:10px;color:#1A3A5C;">{{ result.title }}</div>
+            <div style="font-size:14.5px;line-height:1.6;text-align:center;color:#3a352e;margin-bottom:22px;">{{ result.text }}</div>
+            <button type="button" onClick="{{ closeResult }}" style="width:100%;background:#1A3A5C;color:#fff;border:0;border-radius:8px;padding:13px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;">Entendido</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  
+<!-- 7b. MAPA DE GRIETAS -->
+  <section id="mapa-grietas" style="background:#fff;padding:62px 24px;">
+    <div style="max-width:1140px;margin:0 auto;">
+      <h2 style="font-family:Georgia,serif;font-size:32px;margin:0 0 10px;font-weight:600;">Mapa de Grietas Reportadas</h2>
+      <p style="font-size:16px;line-height:1.6;color:#6B6358;max-width:760px;margin:0 0 18px;">Ubicación de los casos publicados por la comunidad. Los pins rojos indican urgencia alta, ámbar requieren revisión y verdes pueden vigilarse.</p>
+      <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6B6358;"><span style="width:12px;height:12px;border-radius:50%;background:#A52A2A;display:inline-block;"></span>Urgente / Evacuar</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6B6358;"><span style="width:12px;height:12px;border-radius:50%;background:#B35A00;display:inline-block;"></span>Revisión profesional</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6B6358;"><span style="width:12px;height:12px;border-radius:50%;background:#2C5F2E;display:inline-block;"></span>Vigilar</span>
+      </div>
+      <div id="rg-map"></div>
+    </div>
+  </section>
+
+  
+<!-- 8c. MURO COMUNITARIO -->
+  <section id="muro-comunitario" style="background:#fff;padding:62px 24px;">
+    <div style="max-width:1140px;margin:0 auto;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:10px;">
+        <h2 style="font-family:Georgia,serif;font-size:32px;margin:0;font-weight:600;">Muro Comunitario</h2>
+        <span style="font-size:13.5px;color:#6B6358;">{{ postsCount }} casos publicados</span>
+      </div>
+      <p style="font-size:14px;line-height:1.6;color:#6B6358;max-width:820px;margin:0 0 12px;">Los casos publicados aquí son visibles para toda la comunidad y son evaluados por ingenieros civiles voluntarios. Si tu situación es grave (muro abombado, se ve la cabilla, grieta que atraviesa el muro), <strong style="color:#A52A2A;">evacúa y llama al 171</strong> sin esperar evaluación.</p>
+      <p style="font-size:12.5px;line-height:1.55;color:#9a9285;max-width:820px;margin:0 0 18px;font-style:italic;">Aviso legal: las opiniones aquí mostradas son evaluaciones preliminares y orientativas hechas por voluntarios a partir de fotos, no inspecciones presenciales certificadas. No sustituyen el criterio de un ingeniero estructural en sitio.</p>
+
+      <div style="background:#EBF2FA;border:1px solid #bcd2ea;border-radius:9px;padding:14px 16px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <sc-if value="{{ engineerLoggedIn }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:13.5px;color:#1A3A5C;">✅ Conectado como ingeniero: <strong>{{ engineerEmail }}</strong>. Ya puedes comentar en los casos.</div>
+          </sc-if>
+          <sc-if value="{{ engineerPending }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:13.5px;color:#7a4a00;">⏳ Sesión iniciada como <strong>{{ engineerEmail }}</strong>, pero tu cuenta aún no está aprobada como ingeniero. Escribe a Arturo para solicitar acceso.</div>
+          </sc-if>
+          <button type="button" onClick="{{ onLogout }}" style="background:transparent;border:1px solid #1A3A5C;color:#1A3A5C;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cerrar sesión</button>
+        </sc-if>
+        <sc-if value="{{ engineerLoggedOut }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13.5px;color:#1A3A5C;">¿Eres ingeniero civil? Inicia sesión para poder comentar y orientar a la comunidad.</div>
+          <button type="button" onClick="{{ onLogin }}" style="background:#1A3A5C;color:#fff;border:0;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Iniciar sesión con Google</button>
+        </sc-if>
+      </div>
+
+      <div class="rg-wallgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;">
+        <sc-for list="{{ postsView }}" as="post" hint-placeholder-count="2">
+          <article style="border:1px solid #CCC2B4;border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column;border-top:3px solid {{ post.cardAccent }};">
+            <sc-if value="{{ post.hasFoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:{{ post.gridCols }};gap:2px;background:#1c1c1c;">
+                <sc-for list="{{ post.fotosView }}" as="f" hint-placeholder-count="0">
+                  <div style="aspect-ratio:16/10;overflow:hidden;">
+                    <img src="{{ f.url }}" alt="Grieta reportada" style="width:100%;height:100%;object-fit:cover;display:block;"/>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ post.hasVideo }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#000;">
+                <video src="{{ post.video }}" controls style="width:100%;display:block;max-height:280px;"></video>
+              </div>
+            </sc-if>
+            <div style="padding:18px;display:flex;flex-direction:column;gap:11px;flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <span style="{{ post.badgeStyle }}">{{ post.badgeLabel }}</span>
+                <span style="font-size:12px;color:#9a9285;">{{ post.timeLabel }}</span>
+              </div>
+              <sc-if value="{{ post.hasOpinions }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:6px;background:#faf7f1;border:1px solid #eee6d8;border-radius:8px;padding:10px 12px;">
+                  <span style="font-size:11px;color:#6B6358;font-weight:700;text-transform:uppercase;letter-spacing:.3px;">Opinión de ingenieros</span>
+                  <sc-for list="{{ post.opinionsView }}" as="op" hint-placeholder-count="0">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">
+                      <span style="{{ op.dotStyle }}"></span>
+                      <strong style="color:#1A3A5C;">{{ op.nombre }}:</strong>
+                      <span style="color:#3a352e;">{{ op.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:11.5px;color:#6B6358;font-weight:600;">Tu opinión profesional:</span>
+                  <select onChange="{{ post.onOpinionChange }}" style="font-size:12.5px;font-family:inherit;border:1px solid #CCC2B4;border-radius:6px;padding:4px 7px;background:#fff;color:#1A1A1A;">
+                    <option value="" selected="{{ post.myOpinionIsNone }}">Selecciona…</option>
+                    <option value="rojo" selected="{{ post.myOpinionIsRojo }}">🔴 Urgente · Evacuar</option>
+                    <option value="ambar" selected="{{ post.myOpinionIsAmbar }}">🟠 Revisión profesional</option>
+                    <option value="verde" selected="{{ post.myOpinionIsVerde }}">🟢 Vigilar</option>
+                  </select>
+                </div>
+              </sc-if>
+              <h3 style="font-family:Georgia,serif;font-size:18px;margin:0;font-weight:600;line-height:1.25;">{{ post.ubicacion }}</h3>
+              <div style="font-size:12.5px;color:#6B6358;">Elemento: {{ post.elementoLabel }} · Ancho: {{ post.anchoLabel }}{{ post.medidaSufijo }} · {{ post.autor }}</div>
+              <p style="font-size:13.5px;line-height:1.55;color:#3a352e;margin:0;">{{ post.descripcion }}</p>
+
+              <sc-if value="{{ post.videoLlamadaConfirmada }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#EEF6EE;border:1px solid #bdd9be;border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:7px;">
+                  <span style="font-size:12.5px;font-weight:700;color:#27502a;">📞 Videollamada confirmada</span>
+                  <span style="font-size:12.5px;color:#3a352e;">{{ post.horarioConfirmadoLabel }} con {{ post.ingenieroConfirmadoNombre }}</span>
+                  <a href="{{ post.whatsappLink }}" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:7px;text-align:center;">Abrir WhatsApp</a>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ post.videoLlamadaPendienteParaIngeniero }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#EBF2FA;border:1px solid #bcd2ea;border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:8px;">
+                  <span style="font-size:12.5px;font-weight:700;color:#1A3A5C;">📞 Solicita videollamada — confirma un horario</span>
+                  <sc-for list="{{ post.horariosView }}" as="h" hint-placeholder-count="0">
+                    <button type="button" onClick="{{ h.onConfirm }}" style="text-align:left;background:#fff;border:1px solid #CCC2B4;border-radius:7px;padding:8px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#1A1A1A;">Confirmar: {{ h.label }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ post.videoLlamadaPendienteInfo }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#F1EFE8;border:1px solid #ddd4c5;border-radius:8px;padding:10px 13px;">
+                  <span style="font-size:12px;color:#6B6358;font-style:italic;">📞 Esta persona solicitó una videollamada, pendiente de confirmar por un ingeniero.</span>
+                </div>
+              </sc-if>
+
+              <div style="background:#fff;border:1px solid #CCC2B4;border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span style="font-size:12.5px;font-weight:700;color:#1A3A5C;display:flex;align-items:center;gap:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h7" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round"/></svg>
+                    Directorio de ingenieros cercanos
+                  </span>
+                  <a href="#directorio" style="font-size:11px;color:#1A3A5C;text-decoration:underline;">Ver todos →</a>
+                </div>
+                <input type="text" value="{{ post.directoryQuery }}" onInput="{{ post.onDirectorySearch }}" placeholder="Busca por zona, ej: Santa Fe" style="width:100%;padding:9px 11px;border:1px solid #CCC2B4;border-radius:8px;font-size:13px;font-family:inherit;background:#faf7f1;color:#1A1A1A;"/>
+                <sc-if value="{{ post.hasDirectoryResults }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:7px;">
+                    <sc-for list="{{ post.directoryResults }}" as="d" hint-placeholder-count="0">
+                      <a href="{{ d.telLink }}" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F4EFE8;border:1px solid #e3dccf;border-radius:8px;padding:9px 12px;">
+                        <span style="display:flex;flex-direction:column;gap:1px;">
+                          <span style="font-size:13px;color:#1A1A1A;font-weight:700;">{{ d.nombre }}</span>
+                          <span style="font-size:11.5px;color:#6B6358;">{{ d.ubicacion }} · {{ d.universidad }}</span>
+                        </span>
+                        <span style="font-size:12px;color:#fff;font-weight:700;background:#1A3A5C;padding:6px 10px;border-radius:999px;white-space:nowrap;">📞 Llamar</span>
+                      </a>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ post.directoryNoResults }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:12px;color:#9a9285;font-style:italic;">Sin coincidencias para "{{ post.directoryQuery }}". Prueba con otra zona cercana, o <a href="#directorio" style="color:#1A3A5C;">ve el directorio completo</a>.</span>
+                </sc-if>
+                <span style="font-size:10.5px;color:#9a9285;line-height:1.4;">Contactos de egresados de ingeniería civil, no verificados individualmente por esta plataforma.</span>
+              </div>
+
+              <sc-if value="{{ post.hasSenales }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <sc-for list="{{ post.senales }}" as="s" hint-placeholder-count="0">
+                    <span style="font-size:11.5px;background:#F4EFE8;border:1px solid #ddd4c5;color:#6B6358;padding:3px 9px;border-radius:999px;">{{ s }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <div style="margin-top:4px;border-top:1px solid #eee6d8;padding-top:12px;display:flex;flex-direction:column;gap:9px;">
+                <sc-for list="{{ post.comentarios }}" as="c" hint-placeholder-count="0">
+                  <div style="font-size:13px;line-height:1.5;color:#3a352e;background:#faf7f1;border-radius:8px;padding:9px 11px;"><strong style="color:#1A3A5C;font-weight:700;">{{ c.autor }}:</strong> {{ c.txt }}</div>
+                </sc-for>
+                <sc-if value="{{ engineerApproved }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;">
+                    <input id="cmt-{{ post.id }}" type="text" placeholder="Escribe un comentario técnico…" style="flex:1;padding:9px 11px;border:1px solid #CCC2B4;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+                    <button type="button" onClick="{{ post.onComment }}" style="background:#1A3A5C;color:#fff;border:0;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enviar</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ engineerNotApproved }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12px;color:#9a9285;font-style:italic;">Solo ingenieros aprobados pueden comentar. Inicia sesión arriba para solicitar acceso.</div>
+                </sc-if>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- FOOTER -->
+  <footer style="background:#111;color:rgba(255,255,255,0.7);padding:40px 24px;">
+    <div style="max-width:1140px;margin:0 auto;text-align:center;">
+      <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:rgba(255,255,255,0.8);">Revisa tu Grieta — Herramienta ciudadana post-sísmica. No sustituye inspección profesional.</p>
+      <p style="font-size:14px;margin:0 0 16px;color:rgba(255,255,255,0.6);">Protección Civil: 171 · Bomberos: 166</p>
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center;font-size:13.5px;color:rgba(255,255,255,0.55);flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;">Inicio</a>
+        <span style="opacity:0.4;">·</span>
+        <a href="directorio.html" style="text-decoration:none;">Directorio</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { posts: [], photos: [], video: null, videoError: null, result: null, loading: false, postsLoading: true, showVideollamadaFields: false, directorySearch: {}, dirPageQuery: "", dirPageUniversidad: "",
+            engineerUser: null, engineerApproved: false, engineerChecked: false };
+
+  componentDidMount() {
+    this._mapMarkers = [];
+    this._map = null;
+    this._geocodeCache = {};
+    this.formRef = React.createRef();
+    this.waitForFirebase(() => {
+      this.subscribePosts();
+      this.watchAuth();
+    });
+  }
+
+  watchAuth() {
+    const fb = window.rgFirebase;
+    fb.getRedirectResult(fb.auth).catch((e) => console.error("Error en redirect result:", e));
+    fb.onAuthStateChanged(fb.auth, async (user) => {
+      if (!user) {
+        this.setState({ engineerUser: null, engineerApproved: false, engineerChecked: true });
+        return;
+      }
+      let approved = false;
+      try {
+        const snap = await fb.getDoc(fb.doc(fb.db, "ingenieros", user.email.toLowerCase()));
+        approved = snap.exists();
+      } catch (e) { console.error("Error comprobando ingeniero:", e); }
+      this.setState({ engineerUser: user, engineerApproved: approved, engineerChecked: true });
+    });
+  }
+
+  onLogin = async () => {
+    const fb = window.rgFirebase;
+    try {
+      await fb.signInWithRedirect(fb.auth, fb.googleProvider);
+    } catch (e) { console.error("Error en login:", e); }
+  };
+
+  onLogout = async () => {
+    const fb = window.rgFirebase;
+    try { await fb.signOut(fb.auth); } catch (e) { console.error("Error cerrando sesión:", e); }
+  };
+
+  componentWillUnmount() {
+    if (this._unsub) this._unsub();
+  }
+
+  waitForFirebase(cb) {
+    if (window.rgFirebaseReady && window.rgFirebase) { cb(); return; }
+    setTimeout(() => this.waitForFirebase(cb), 120);
+  }
+
+  initMap() {
+    if (this._map || !window.L) return;
+    const L = window.L;
+    this._map = L.map('rg-map', { zoomControl: true }).setView([10.5, -66.9], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(this._map);
+  }
+
+  async geocode(ubicacion) {
+    if (this._geocodeCache[ubicacion]) return this._geocodeCache[ubicacion];
+    const query = encodeURIComponent(ubicacion + ', Venezuela');
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
+        headers: { 'Accept-Language': 'es', 'User-Agent': 'RevisaTuGrieta/1.0' }
+      });
+      const data = await res.json();
+      if (data && data[0]) {
+        const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        this._geocodeCache[ubicacion] = coords;
+        return coords;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  async updateMap(posts) {
+    if (!window.L) { setTimeout(() => this.updateMap(posts), 300); return; }
+    this.initMap();
+    const L = window.L;
+    const map = this._map;
+    this._mapMarkers.forEach(m => map.removeLayer(m));
+    this._mapMarkers = [];
+    const colors = { rojo: '#A52A2A', ambar: '#B35A00', verde: '#2C5F2E' };
+    for (const post of posts) {
+      const coords = await this.geocode(post.ubicacion);
+      if (!coords) continue;
+      const color = colors[post.urgencia] || colors.verde;
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+      const marker = L.marker([coords.lat, coords.lng], { icon })
+        .bindPopup(`<strong style="font-size:13px;">${post.ubicacion}</strong><br><span style="font-size:12px;color:#666;">${post.autor || 'Anónimo'}</span>`)
+        .addTo(map);
+      this._mapMarkers.push(marker);
+    }
+    if (this._mapMarkers.length > 0) {
+      const group = L.featureGroup(this._mapMarkers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+  }
+
+  
+
+  subscribePosts() {
+    const fb = window.rgFirebase;
+    const q = fb.query(fb.collection(fb.db, "grietas"), fb.orderBy("fecha", "desc"));
+    this._unsub = fb.onSnapshot(q, (snap) => {
+      const posts = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          ubicacion: data.ubicacion, autor: data.autor, elemento: data.elemento,
+          ancho: data.ancho, senales: data.senales || [], descripcion: data.descripcion,
+          foto: data.foto || null, fotos: data.fotos || (data.foto ? [data.foto] : []),
+          video: data.video || null,
+          medidaExacta: data.medidaExacta || null,
+          urgencia: data.urgencia || null,
+          fecha: data.fecha && data.fecha.toMillis ? data.fecha.toMillis() : Date.now(),
+          comentarios: data.comentarios || [],
+          opinionesIngenieros: data.opinionesIngenieros || [],
+          quiereVideollamada: data.quiereVideollamada || false,
+          whatsapp: data.whatsapp || null,
+          horariosPropuestos: data.horariosPropuestos || [],
+          videollamadaConfirmada: data.videollamadaConfirmada || null
+        };
+      });
+      this.setState({ posts, postsLoading: false });
+      this.updateMap(posts);
+    }, (err) => {
+      console.error("Error leyendo Firestore:", err);
+      this.setState({ postsLoading: false });
+    });
+  }
+
+  confirmBanner() {
+    return {
+      title: "Caso publicado correctamente",
+      text: "Tu caso ya está visible en el Muro Comunitario y en el mapa. Un ingeniero civil voluntario lo revisará y dejará su opinión profesional lo antes posible."
+    };
+  }
+
+  onPhoto = (e) => {
+    const files = Array.prototype.slice.call(e.target.files || []);
+    if (!files.length) return;
+    const maxFotos = 4;
+    const espacioDisponible = maxFotos - (this.state.photos || []).length;
+    const filesToProcess = files.slice(0, Math.max(0, espacioDisponible));
+    filesToProcess.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 1000;
+          let w = img.width, h = img.height;
+          if (w > max || h > max) { const r = Math.min(max / w, max / h); w = Math.round(w * r); h = Math.round(h * r); }
+          const c = document.createElement("canvas"); c.width = w; c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          const dataUrl = c.toDataURL("image/jpeg", 0.82);
+          c.toBlob((blob) => {
+            this.setState(prev => ({ photos: [...(prev.photos || []), { dataUrl, blob }] }));
+          }, "image/jpeg", 0.82);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  removePhotoAt = (idx) => {
+    this.setState(prev => ({ photos: (prev.photos || []).filter((_, i) => i !== idx) }));
+  };
+
+  onVideo = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const maxSizeMB = 30;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      this.setState({ videoError: `El video pesa demasiado (máx. ${maxSizeMB}MB). Intenta grabar uno más corto.` });
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const probe = document.createElement("video");
+    probe.preload = "metadata";
+    probe.onloadedmetadata = () => {
+      const duration = probe.duration;
+      if (duration > 31) {
+        URL.revokeObjectURL(url);
+        this.setState({ videoError: "El video dura más de 30 segundos. Sube uno más corto." });
+        return;
+      }
+      this.setState({ video: { blob: file, previewUrl: url }, videoError: null });
+    };
+    probe.onerror = () => {
+      this.setState({ videoError: "No se pudo leer el video. Intenta con otro archivo." });
+    };
+    probe.src = url;
+  };
+
+  removeVideo = () => {
+    if (this.state.video && this.state.video.previewUrl) {
+      try { URL.revokeObjectURL(this.state.video.previewUrl); } catch (e) {}
+    }
+    this.setState({ video: null, videoError: null });
+  };
+
+  onToggleVideollamada = (e) => {
+    this.setState({ showVideollamadaFields: e.target.checked });
+  };
+
+  closeResult = () => this.setState({ result: null });
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.loading) return;
+    const f = this.formRef.current;
+    if (!f) return;
+    const ubicacion = (f.querySelector('[name="ubicacion"]').value || "").trim();
+    if (!ubicacion) {
+      this.setState({ result: { title: "Falta la ubicación", text: "Indica al menos dónde está la grieta para poder publicar tu caso." } });
+      return;
+    }
+    const aceptaAviso = f.querySelector('[name="aceptaAviso"]').checked;
+    if (!aceptaAviso) {
+      this.setState({ result: { title: "Debes aceptar el aviso legal", text: "Marca la casilla confirmando que entiendes que esta es una evaluación preliminar antes de publicar tu caso." } });
+      return;
+    }
+    const autor = (f.querySelector('[name="autor"]').value || "").trim() || "Anónimo";
+    const anchoEl = f.querySelector('[name="ancho"]:checked');
+    const ancho = anchoEl ? anchoEl.value : "No especificado";
+    const medidaExactaRaw = (f.querySelector('[name="medidaExacta"]').value || "").trim();
+    const medidaExacta = medidaExactaRaw ? parseFloat(medidaExactaRaw) : null;
+    const elementoEl = f.querySelector('[name="elemento"]:checked');
+    const elemento = elementoEl ? elementoEl.value : "No especificado";
+    const descripcion = (f.querySelector('[name="descripcion"]').value || "").trim();
+    const senales = Array.prototype.slice.call(f.querySelectorAll('[name="senal"]:checked')).map(c => c.value);
+
+    const quiereVideollamada = f.querySelector('[name="quiereVideollamada"]').checked;
+    let whatsapp = null, horariosPropuestos = [];
+    if (quiereVideollamada) {
+      whatsapp = (f.querySelector('[name="whatsapp"]').value || "").trim();
+      if (!whatsapp) {
+        this.setState({ result: { title: "Falta tu número de WhatsApp", text: "Indica tu número de WhatsApp para poder agendar la videollamada, o desmarca la opción si no la necesitas." } });
+        return;
+      }
+      ["horario1", "horario2", "horario3"].forEach(name => {
+        const val = (f.querySelector(`[name="${name}"]`).value || "").trim();
+        if (val) horariosPropuestos.push(val);
+      });
+      if (horariosPropuestos.length === 0) {
+        this.setState({ result: { title: "Falta al menos un horario", text: "Propón al menos una opción de horario para la videollamada, o desmarca la opción si no la necesitas." } });
+        return;
+      }
+    }
+
+    this.setState({ loading: true });
+    try {
+      const fb = window.rgFirebase;
+      const fotosUrls = [];
+      for (const p of (this.state.photos || [])) {
+        const path = `grietas/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+        const storageRef = fb.ref(fb.storage, path);
+        await fb.uploadBytes(storageRef, p.blob, { contentType: "image/jpeg" });
+        const url = await fb.getDownloadURL(storageRef);
+        fotosUrls.push(url);
+      }
+      let videoUrl = null;
+      if (this.state.video && this.state.video.blob) {
+        const ext = (this.state.video.blob.type && this.state.video.blob.type.split("/")[1]) || "mp4";
+        const path = `grietas/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const storageRef = fb.ref(fb.storage, path);
+        await fb.uploadBytes(storageRef, this.state.video.blob, { contentType: this.state.video.blob.type || "video/mp4" });
+        videoUrl = await fb.getDownloadURL(storageRef);
+      }
+      await fb.addDoc(fb.collection(fb.db, "grietas"), {
+        ubicacion, autor, elemento, ancho, medidaExacta, senales, descripcion,
+        fotos: fotosUrls, video: videoUrl, urgencia: null, fecha: fb.serverTimestamp(), comentarios: [], opinionesIngenieros: [],
+        quiereVideollamada, whatsapp, horariosPropuestos, videollamadaConfirmada: null
+      });
+      this.removeVideo();
+      this.setState({ photos: [], loading: false, showVideollamadaFields: false, result: this.confirmBanner() });
+      f.reset();
+    } catch (err) {
+      console.error("Error publicando:", err);
+      this.setState({ loading: false, result: { title: "No se pudo publicar", text: "Hubo un error. Revisa tu conexión e inténtalo de nuevo." } });
+    }
+  };
+
+  addComment = async (postId) => {
+    if (!this.state.engineerUser || !this.state.engineerApproved) return;
+    const input = document.getElementById("cmt-" + postId);
+    if (!input) return;
+    const txt = (input.value || "").trim();
+    if (!txt) return;
+    input.value = "";
+    const nombreIngeniero = "Ing. " + (this.state.engineerUser.displayName || this.state.engineerUser.email);
+    try {
+      const fb = window.rgFirebase;
+      await fb.updateDoc(fb.doc(fb.db, "grietas", postId), { comentarios: fb.arrayUnion({ autor: nombreIngeniero, txt }) });
+    } catch (err) { console.error("Error añadiendo comentario:", err); }
+  };
+
+  setMyOpinion = async (postId, nuevaUrgencia) => {
+    if (!this.state.engineerUser || !this.state.engineerApproved || !nuevaUrgencia) return;
+    const email = this.state.engineerUser.email.toLowerCase();
+    const nombre = this.state.engineerUser.displayName || this.state.engineerUser.email;
+    const post = (this.state.posts || []).find(p => p.id === postId);
+    if (!post) return;
+    const opiniones = (post.opinionesIngenieros || []).filter(o => o.email !== email);
+    opiniones.push({ email, nombre, urgencia: nuevaUrgencia });
+    try {
+      const fb = window.rgFirebase;
+      await fb.updateDoc(fb.doc(fb.db, "grietas", postId), { opinionesIngenieros: opiniones });
+    } catch (err) { console.error("Error guardando opinión:", err); }
+  };
+
+  confirmarVideollamada = async (postId, horario) => {
+    if (!this.state.engineerUser || !this.state.engineerApproved) return;
+    const post = (this.state.posts || []).find(p => p.id === postId);
+    if (!post || post.videollamadaConfirmada) return;
+    const nombre = this.state.engineerUser.displayName || this.state.engineerUser.email;
+    const email = this.state.engineerUser.email.toLowerCase();
+    try {
+      const fb = window.rgFirebase;
+      await fb.updateDoc(fb.doc(fb.db, "grietas", postId), {
+        videollamadaConfirmada: { horario, ingenieroNombre: nombre, ingenieroEmail: email },
+        comentarios: fb.arrayUnion({ autor: "Ing. " + nombre, txt: `Confirmó videollamada para ${this.formatHorario(horario)}` })
+      });
+    } catch (err) { console.error("Error confirmando videollamada:", err); }
+  };
+
+  formatHorario(horario) {
+    try {
+      const d = new Date(horario);
+      return d.toLocaleString("es-VE", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return horario; }
+  }
+
+  onDirectorySearch = (postId, value) => {
+    this.setState(prev => ({ directorySearch: { ...prev.directorySearch, [postId]: value } }));
+  };
+
+  guessZoneFromUbicacion(ubicacion) {
+    const dir = window.rgDirectorioIngenieros || [];
+    if (!ubicacion) return "";
+    const ubicLower = ubicacion.toLowerCase();
+    const zonas = [...new Set(dir.map(d => d.ubicacion))];
+    const match = zonas.find(z => ubicLower.includes(z.toLowerCase()));
+    return match || "";
+  }
+
+  searchDirectory(query) {
+    const dir = window.rgDirectorioIngenieros || [];
+    if (!query || query.trim().length < 2) return [];
+    const q = query.toLowerCase().trim();
+    return dir.filter(d => d.ubicacion.toLowerCase().includes(q)).slice(0, 6);
+  }
+
+  onDirPageSearch = (e) => this.setState({ dirPageQuery: e.target.value });
+  onDirPageUniSelect = (e) => this.setState({ dirPageUniversidad: e.target.value });
+
+  timeAgo(ts) {
+    const min = Math.floor((Date.now() - ts) / 60000);
+    if (min < 1) return "hace un momento";
+    if (min < 60) return "hace " + min + " min";
+    const h = Math.floor(min / 60);
+    if (h < 24) return "hace " + h + " h";
+    const d = Math.floor(h / 24);
+    return "hace " + d + (d === 1 ? " día" : " días");
+  }
+
+  renderVals() {
+    const urgStyle = {
+      rojo: { bg: "#FDF0F0", col: "#A52A2A", label: "Urgente · Evacuar" },
+      ambar: { bg: "#FFF5E6", col: "#B35A00", label: "Revisión profesional" },
+      verde: { bg: "#EEF6EE", col: "#2C5F2E", label: "Vigilar" },
+      pendiente: { bg: "#F1EFE8", col: "#6B6358", label: "Pendiente de evaluación" }
+    };
+    const myEmail = this.state.engineerUser ? this.state.engineerUser.email.toLowerCase() : null;
+    const urgLabels = { rojo: "🔴 Urgente · Evacuar", ambar: "🟠 Revisión profesional", verde: "🟢 Vigilar" };
+    const urgDot = { rojo: "#A52A2A", ambar: "#B35A00", verde: "#2C5F2E" };
+
+    const isApprovedEngineer = !!this.state.engineerUser && this.state.engineerApproved;
+
+    const postsView = (this.state.posts || []).map(p => {
+      const opiniones = p.opinionesIngenieros || [];
+      let estado = "pendiente";
+      if (opiniones.some(o => o.urgencia === "rojo")) estado = "rojo";
+      else if (opiniones.some(o => o.urgencia === "ambar")) estado = "ambar";
+      else if (opiniones.some(o => o.urgencia === "verde")) estado = "verde";
+      const u = urgStyle[estado];
+      const myOpinion = myEmail ? opiniones.find(o => o.email === myEmail) : null;
+      const myUrgencia = myOpinion ? myOpinion.urgencia : null;
+      const fotos = p.fotos || [];
+      const gridColsMap = { 1: "1fr", 2: "1fr 1fr", 3: "1fr 1fr 1fr", 4: "1fr 1fr" };
+
+      const vc = p.videollamadaConfirmada;
+      const whatsappDigits = (p.whatsapp || "").replace(/[^0-9]/g, "");
+      const directoryQuery = (this.state.directorySearch && this.state.directorySearch[p.id] !== undefined)
+        ? this.state.directorySearch[p.id]
+        : this.guessZoneFromUbicacion(p.ubicacion);
+      const directoryResults = this.searchDirectory(directoryQuery);
+
+      return {
+        id: p.id, ubicacion: p.ubicacion, autor: p.autor,
+        elementoLabel: p.elemento || "No especificado", anchoLabel: p.ancho || "No especificado",
+        medidaSufijo: p.medidaExacta ? ` (${p.medidaExacta} mm medidos)` : "",
+        descripcion: p.descripcion,
+        fotosView: fotos.map(url => ({ url })), hasFoto: fotos.length > 0,
+        gridCols: gridColsMap[Math.min(fotos.length, 4)] || "1fr",
+        video: p.video || null, hasVideo: !!p.video,
+        senales: p.senales || [], hasSenales: (p.senales || []).length > 0,
+        comentarios: p.comentarios || [],
+        badgeLabel: u.label,
+        badgeStyle: { display: "inline-block", padding: "4px 11px", borderRadius: "999px", fontSize: "11.5px", fontWeight: 700, background: u.bg, color: u.col },
+        cardAccent: u.col,
+        timeLabel: this.timeAgo(p.fecha),
+        onComment: () => this.addComment(p.id),
+        onOpinionChange: (e) => this.setMyOpinion(p.id, e.target.value),
+        hasOpinions: opiniones.length > 0,
+        opinionsView: opiniones.map(o => ({
+          nombre: o.nombre,
+          label: urgLabels[o.urgencia] || o.urgencia,
+          dotStyle: { width: "9px", height: "9px", borderRadius: "50%", display: "inline-block", background: urgDot[o.urgencia] || "#999" }
+        })),
+        myOpinionIsNone: !myUrgencia,
+        myOpinionIsRojo: myUrgencia === "rojo",
+        myOpinionIsAmbar: myUrgencia === "ambar",
+        myOpinionIsVerde: myUrgencia === "verde",
+        videoLlamadaConfirmada: !!vc,
+        horarioConfirmadoLabel: vc ? this.formatHorario(vc.horario) : "",
+        ingenieroConfirmadoNombre: vc ? "Ing. " + vc.ingenieroNombre : "",
+        whatsappLink: whatsappDigits ? `https://wa.me/${whatsappDigits}` : "",
+        videoLlamadaPendienteParaIngeniero: !!p.quiereVideollamada && !vc && isApprovedEngineer,
+        videoLlamadaPendienteInfo: !!p.quiereVideollamada && !vc && !isApprovedEngineer,
+        horariosView: (p.horariosPropuestos || []).map(h => ({
+          label: this.formatHorario(h),
+          onConfirm: () => this.confirmarVideollamada(p.id, h)
+        })),
+        directoryQuery: directoryQuery,
+        onDirectorySearch: (e) => this.onDirectorySearch(p.id, e.target.value),
+        directoryResults: directoryResults.map(d => ({
+          nombre: d.nombre, ubicacion: d.ubicacion, telefono: d.telefono, universidad: d.universidad,
+          telLink: `tel:${d.telefonoLink}`
+        })),
+        hasDirectoryResults: directoryResults.length > 0,
+        directoryNoResults: directoryQuery.trim().length >= 2 && directoryResults.length === 0
+      };
+    });
+
+    const fullDir = window.rgDirectorioIngenieros || [];
+    const universidadesUnicas = [...new Set(fullDir.map(d => d.universidad).filter(Boolean))].sort();
+    const universidadesView = universidadesUnicas.map(u => ({ value: u, isSelected: u === this.state.dirPageUniversidad }));
+
+    let dirFiltered = fullDir;
+    if (this.state.dirPageQuery.trim().length >= 2) {
+      const q = this.state.dirPageQuery.toLowerCase().trim();
+      dirFiltered = dirFiltered.filter(d => d.ubicacion.toLowerCase().includes(q));
+    }
+    if (this.state.dirPageUniversidad) {
+      dirFiltered = dirFiltered.filter(d => d.universidad === this.state.dirPageUniversidad);
+    }
+    const groupsMap = {};
+    dirFiltered.forEach(d => {
+      if (!groupsMap[d.ubicacion]) groupsMap[d.ubicacion] = [];
+      groupsMap[d.ubicacion].push(d);
+    });
+    const dirGroupsView = Object.keys(groupsMap).sort().map(zona => ({
+      zona, count: groupsMap[zona].length,
+      items: groupsMap[zona].map(d => ({
+        nombre: d.nombre, universidad: d.universidad, anio: d.anio, telefono: d.telefono,
+        telLink: `tel:${d.telefonoLink}`
+      }))
+    }));
+
+    const photosView = (this.state.photos || []).map((p, idx) => ({
+      url: p.dataUrl,
+      onRemove: () => this.removePhotoAt(idx)
+    }));
+
+    return {
+      formRef: this.formRef, onSubmit: this.onSubmit, onPhoto: this.onPhoto,
+      photosView, hasPhoto: photosView.length > 0,
+      onVideo: this.onVideo, removeVideo: this.removeVideo,
+      hasVideo: !!this.state.video, noVideo: !this.state.video,
+      videoPreview: this.state.video ? this.state.video.previewUrl : "",
+      videoError: this.state.videoError,
+      onToggleVideollamada: this.onToggleVideollamada,
+      showVideollamadaFields: this.state.showVideollamadaFields,
+      result: this.state.result, closeResult: this.closeResult,
+      postsView, postsCount: postsView.length,
+      onLogin: this.onLogin, onLogout: this.onLogout,
+      engineerLoggedIn: !!this.state.engineerUser,
+      engineerLoggedOut: this.state.engineerChecked && !this.state.engineerUser,
+      engineerApproved: !!this.state.engineerUser && this.state.engineerApproved,
+      engineerPending: !!this.state.engineerUser && !this.state.engineerApproved,
+      engineerNotApproved: !(!!this.state.engineerUser && this.state.engineerApproved),
+      engineerEmail: this.state.engineerUser ? this.state.engineerUser.email : "",
+      dirPageQuery: this.state.dirPageQuery,
+      onDirPageSearch: this.onDirPageSearch,
+      onDirPageUniSelect: this.onDirPageUniSelect,
+      universidadesView,
+      dirResultsCount: dirFiltered.length,
+      dirGroupsView, dirHasGroups: dirGroupsView.length > 0, dirNoGroups: dirGroupsView.length === 0
+    };
+  }
+}
+
+</script>
+</body>
+</html>

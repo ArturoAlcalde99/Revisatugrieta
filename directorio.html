@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script>
+  window.rgDirectorioIngenieros = [{"nombre": "Aitor Fernandez", "universidad": "Unimet", "anio": "2026", "ubicacion": "Los Samanes", "telefono": "+58 414-4716351", "telefonoLink": "+584144716351"}, {"nombre": "Alejandra Alibrandi", "universidad": "Unimet", "anio": "2017", "ubicacion": "Sebucan", "telefono": "04146858882", "telefonoLink": "+584146858882"}, {"nombre": "Alejandro Jaspe", "universidad": "UDO", "anio": "2022", "ubicacion": "El Tigre", "telefono": "04248157440", "telefonoLink": "+584248157440"}, {"nombre": "Alessandro Flora", "universidad": "UCV", "anio": "2023", "ubicacion": "Caracas", "telefono": "+584142260133", "telefonoLink": "+584142260133"}, {"nombre": "Alessandra Mazzaglia", "universidad": "Unimet", "anio": "2026", "ubicacion": "Santa Fe", "telefono": "04142102929", "telefonoLink": "+584142102929"}, {"nombre": "Ana Pacanins", "universidad": "Unimet", "anio": "2019", "ubicacion": "Altamira", "telefono": "04241070817", "telefonoLink": "+584241070817"}, {"nombre": "Andrés García", "universidad": "UCAB", "anio": "2023", "ubicacion": "Terrazas del Ávila", "telefono": "04123525039", "telefonoLink": "+584123525039"}, {"nombre": "Angel Lacruz", "universidad": "UCAB", "anio": "2023", "ubicacion": "San Bernardino", "telefono": "04164211858", "telefonoLink": "+584164211858"}, {"nombre": "Angel Marchena", "universidad": "UCV", "anio": "2023", "ubicacion": "El Paraíso", "telefono": "04126133311", "telefonoLink": "+584126133311"}, {"nombre": "Angello Sánchez", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Teques", "telefono": "04241894136", "telefonoLink": "+584241894136"}, {"nombre": "Arian Mier y Teran", "universidad": "Unimet", "anio": "2024", "ubicacion": "Hatillo", "telefono": "04241920209", "telefonoLink": "+584241920209"}, {"nombre": "Arianna Arenare", "universidad": "Unimet", "anio": "2025", "ubicacion": "Colinas de Bello Monte", "telefono": "0424-2543583", "telefonoLink": "+584242543583"}, {"nombre": "Bárbara Colmenares", "universidad": "UCV", "anio": "2026", "ubicacion": "Las Mercedes", "telefono": "04241331888", "telefonoLink": "+584241331888"}, {"nombre": "Blady Molina", "universidad": "Unimet", "anio": "2024", "ubicacion": "Palo Verde", "telefono": "04149725267", "telefonoLink": "+584149725267"}, {"nombre": "Brayan Malavé", "universidad": "UNEFA", "anio": "2023", "ubicacion": "La California", "telefono": "04149017864", "telefonoLink": "+584149017864"}, {"nombre": "Carlos Espinoza", "universidad": "UNEFA", "anio": "2015", "ubicacion": "Ciudad Bolívar", "telefono": "04148565487", "telefonoLink": "+584148565487"}, {"nombre": "Cesar Baute", "universidad": "Unimet", "anio": "2024", "ubicacion": "Santa Paula, El Cafetal", "telefono": "+58 4241512494", "telefonoLink": "+584241512494"}, {"nombre": "Cristina Hurtado", "universidad": "Unimet", "anio": "2024", "ubicacion": "Los Samanes", "telefono": "+584143137185", "telefonoLink": "+584143137185"}, {"nombre": "Daniel Hung", "universidad": "UCV", "anio": "1985", "ubicacion": "Los Ruices", "telefono": "04129891838", "telefonoLink": "+584129891838"}, {"nombre": "Daniela Castillo", "universidad": "Unimet", "anio": "2023", "ubicacion": "El Hatillo", "telefono": "04146567867", "telefonoLink": "+584146567867"}, {"nombre": "David Gutiérrez", "universidad": "USM", "anio": "2011", "ubicacion": "Urb. Miranda", "telefono": "04242525273", "telefonoLink": "+584242525273"}, {"nombre": "Diego Maceira", "universidad": "Unimet", "anio": "2023", "ubicacion": "El Cafetal", "telefono": "04222889740", "telefonoLink": "+584222889740"}, {"nombre": "Dionicio Romero", "universidad": "UCAB", "anio": "2025", "ubicacion": "España", "telefono": "+34 623164500", "telefonoLink": "+34623164500"}, {"nombre": "Eduardo Alvarado", "universidad": "UCAB", "anio": "2025", "ubicacion": "Av. San Martín", "telefono": "04129097198", "telefonoLink": "+584129097198"}, {"nombre": "Eduardo Rivera", "universidad": "UCAB", "anio": "2024", "ubicacion": "Caracas", "telefono": "04241307632", "telefonoLink": "+584241307632"}, {"nombre": "Elizabeth Superlano", "universidad": "Unimet", "anio": "2021", "ubicacion": "Barcelona, España", "telefono": "+34 656499650", "telefonoLink": "+34656499650"}, {"nombre": "Elvis Páez", "universidad": "UNEFA", "anio": "2023", "ubicacion": "El Valle", "telefono": "04242788442", "telefonoLink": "+584242788442"}, {"nombre": "Emely Mahfoud", "universidad": "UCV", "anio": "2023", "ubicacion": "Caracas", "telefono": "04129909853", "telefonoLink": "+584129909853"}, {"nombre": "Erika Hernández Berú", "universidad": "UCAB (Esp. Estructural)", "anio": "2017", "ubicacion": "San Cristóbal, Táchira", "telefono": "04163760186", "telefonoLink": "+584163760186"}, {"nombre": "Ernesto Covuccia", "universidad": "Unimet", "anio": "2026", "ubicacion": "El Hatillo", "telefono": "04242871396", "telefonoLink": "+584242871396"}, {"nombre": "Ernesto Pullas", "universidad": "UCAB", "anio": "2021", "ubicacion": "San Bernardino", "telefono": "04128005415", "telefonoLink": "+584128005415"}, {"nombre": "Esther Rodríguez", "universidad": "Univ. de Carabobo", "anio": "2008", "ubicacion": "Montevideo, Uruguay", "telefono": "+59892318555", "telefonoLink": "+59892318555"}, {"nombre": "Euri Ardila", "universidad": "Univ. del Táchira", "anio": "2023", "ubicacion": "San Cristóbal, Táchira", "telefono": "04143752613", "telefonoLink": "+584143752613"}, {"nombre": "Fabiana Orellana", "universidad": "Unimet", "anio": "2021", "ubicacion": "USA", "telefono": "+13213154097", "telefonoLink": "+13213154097"}, {"nombre": "Genesis Moreno", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Club Hípico", "telefono": "04142736398", "telefonoLink": "+584142736398"}, {"nombre": "Génesis Morales", "universidad": "UCAB", "anio": "2025", "ubicacion": "Av. Libertador", "telefono": "04141553677", "telefonoLink": "+584141553677"}, {"nombre": "Gianfranco Ponzo", "universidad": "UNEFA / IMME", "anio": "2013", "ubicacion": "Isla de Margarita", "telefono": "+584148926161", "telefonoLink": "+584148926161"}, {"nombre": "Henry Sarmiento", "universidad": "UCV", "anio": "2009", "ubicacion": "La Victoria, Aragua", "telefono": "04163424559", "telefonoLink": "+584163424559"}, {"nombre": "Hugo Villalobos", "universidad": "UCAB", "anio": "2021", "ubicacion": "La Alta Florida", "telefono": "+584243479698", "telefonoLink": "+584243479698"}, {"nombre": "Isabella Valverde", "universidad": "Unimet", "anio": "2024", "ubicacion": "El Cafetal", "telefono": "+584120130202", "telefonoLink": "+584120130202"}, {"nombre": "Iván Salas", "universidad": "UCAB", "anio": "2018", "ubicacion": "San Agustín del Norte", "telefono": "04142417745", "telefonoLink": "+584142417745"}, {"nombre": "Ivan De Rugeriis", "universidad": "Unimet", "anio": "2024", "ubicacion": "Urbanización Miranda", "telefono": "04142665232", "telefonoLink": "+584142665232"}, {"nombre": "Javier Torres Sivoli", "universidad": "Univ. de La Plata, Argentina", "anio": "2021", "ubicacion": "Madrid", "telefono": "+34661876615", "telefonoLink": "+34661876615"}, {"nombre": "Jesús Alarze", "universidad": "UCV", "anio": "2017", "ubicacion": "Alto Prado", "telefono": "04241462393", "telefonoLink": "+584241462393"}, {"nombre": "Johan Cobo", "universidad": "IUP Santiago Mariño", "anio": "2012", "ubicacion": "Prados de María", "telefono": "04144557642", "telefonoLink": "+584144557642"}, {"nombre": "Jonathan Guerra", "universidad": "USM", "anio": "2002", "ubicacion": "Guarenas", "telefono": "04122940188", "telefonoLink": "+584122940188"}, {"nombre": "José Ángel Bernal Pérez", "universidad": "UJMV", "anio": "1997", "ubicacion": "Altos Mirandinos", "telefono": "0412-0122864", "telefonoLink": "+584120122864"}, {"nombre": "Jose Ramirez", "universidad": "IUP Santiago Mariño Maracay", "anio": "2020", "ubicacion": "Turmero, Aragua", "telefono": "04121995345", "telefonoLink": "+584121995345"}, {"nombre": "Josue Gonzalez", "universidad": "UCAB", "anio": "2024", "ubicacion": "Caracas", "telefono": "+584222465717", "telefonoLink": "+584222465717"}, {"nombre": "Josue Maldonado", "universidad": "UPT Mérida", "anio": "2025", "ubicacion": "Distrito Capital", "telefono": "04247126476", "telefonoLink": "+584247126476"}, {"nombre": "Juan Pablo Arocha", "universidad": "Unimet", "anio": "2025", "ubicacion": "Los Chorros", "telefono": "04143787518", "telefonoLink": "+584143787518"}, {"nombre": "Kenyer Carrasquel", "universidad": "UCV", "anio": "2018", "ubicacion": "Coche", "telefono": "04120113607", "telefonoLink": "+584120113607"}, {"nombre": "Kenji Ramírez", "universidad": "Unimet", "anio": "2026", "ubicacion": "El Cafetal", "telefono": "04241734069", "telefonoLink": "+584241734069"}, {"nombre": "Kevin Zerpa", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Dos Caminos", "telefono": "04129803113", "telefonoLink": "+584129803113"}, {"nombre": "Leopoldo Lecuna", "universidad": "Unimet", "anio": "2023", "ubicacion": "Los Palos Grandes", "telefono": "04140110114", "telefonoLink": "+584140110114"}, {"nombre": "Leyda Pérez", "universidad": "TSU Diseño Interior y Construcción Civil", "anio": "2012", "ubicacion": "Coche", "telefono": "04142330155", "telefonoLink": "+584142330155"}, {"nombre": "Loredana Espinoza", "universidad": "Unimet", "anio": "2025", "ubicacion": "Carrizal, Miranda", "telefono": "04140201259", "telefonoLink": "+584140201259"}, {"nombre": "Luis Baldó", "universidad": "UCAB", "anio": "2026", "ubicacion": "Chacao", "telefono": "04127055652", "telefonoLink": "+584127055652"}, {"nombre": "Luis Bayuelo", "universidad": "Unimet", "anio": "2004", "ubicacion": "Terrazas de Mampote", "telefono": "04143005146", "telefonoLink": "+584143005146"}, {"nombre": "Luis Larrazabal", "universidad": "Unimet", "anio": "2025", "ubicacion": "Cumbres de Curumo", "telefono": "04241360755", "telefonoLink": "+584241360755"}, {"nombre": "Luís Escalona", "universidad": "UCV / USM", "anio": "2018", "ubicacion": "Chacao/Los Palos Grandes", "telefono": "04126001480", "telefonoLink": "+584126001480"}, {"nombre": "Manuel Orozco", "universidad": "Unimet", "anio": "2024", "ubicacion": "La Florida", "telefono": "04242996706", "telefonoLink": "+584242996706"}, {"nombre": "Manuel Pagá", "universidad": "Unimet", "anio": "2022", "ubicacion": "Macaracuay", "telefono": "04242642244", "telefonoLink": "+584242642244"}, {"nombre": "Manuel Tapia U", "universidad": "Unimet", "anio": "1985", "ubicacion": "Caracas", "telefono": "04120119155", "telefonoLink": "+584120119155"}, {"nombre": "Marco Antonio Polo Cepeda", "universidad": "UCAB", "anio": "2024", "ubicacion": "Prados del Este", "telefono": "04128126021", "telefonoLink": "+584128126021"}, {"nombre": "Marcos Rodriguez", "universidad": "Unimet", "anio": "1992", "ubicacion": "El Cafetal", "telefono": "04149442569", "telefonoLink": "+584149442569"}, {"nombre": "María Daniela Avendaño", "universidad": "Unimet", "anio": "2025", "ubicacion": "Santa Fe", "telefono": "04243063273", "telefonoLink": "+584243063273"}, {"nombre": "Maria Estefania Parra", "universidad": "ULA", "anio": "2019", "ubicacion": "Caracas", "telefono": "04126730738", "telefonoLink": "+584126730738"}, {"nombre": "Maria Fernanda Raybaudi", "universidad": "UCAB", "anio": "2022", "ubicacion": "Chacao", "telefono": "+584241990916", "telefonoLink": "+584241990916"}, {"nombre": "María Gabriela Gutiérrez", "universidad": "UCLA", "anio": "2007", "ubicacion": "Caracas", "telefono": "04122467788", "telefonoLink": "+584122467788"}, {"nombre": "Maria Laura Isea", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Club Hípico", "telefono": "04129960846", "telefonoLink": "+584129960846"}, {"nombre": "Miguel Liendo", "universidad": "UCAB", "anio": "2017", "ubicacion": "Las Acacias", "telefono": "04123014208", "telefonoLink": "+584123014208"}, {"nombre": "Pablo Gonzalez", "universidad": "UCAB", "anio": "2023", "ubicacion": "El Paraíso", "telefono": "04142043380", "telefonoLink": "+584142043380"}, {"nombre": "Pedro Tineo", "universidad": "UCV", "anio": "2022", "ubicacion": "Chacao/Miranda", "telefono": "04126121942", "telefonoLink": "+584126121942"}, {"nombre": "Rafael Alcalá", "universidad": "IUT RC-UJMV", "anio": "2006/2012", "ubicacion": "Los Teques", "telefono": "04142163347", "telefonoLink": "+584142163347"}, {"nombre": "Rafael Fermín", "universidad": "Unimet", "anio": "2025", "ubicacion": "La Tahona", "telefono": "04123120570", "telefonoLink": "+584123120570"}, {"nombre": "Ricardo Algernon", "universidad": "UCAB", "anio": "1980", "ubicacion": "Terrazas Club Hípico", "telefono": "04241739220", "telefonoLink": "+584241739220"}, {"nombre": "Romer Marciales", "universidad": "IUP Santiago Mariño", "anio": "2012", "ubicacion": "Caracas", "telefono": "04264758571", "telefonoLink": "+584264758571"}, {"nombre": "Rubén Rincón", "universidad": "UNET", "anio": "2019", "ubicacion": "San Cristóbal, Táchira", "telefono": "+584247846216", "telefonoLink": "+584247846216"}, {"nombre": "Samira Yebaile", "universidad": "Unimet", "anio": "1999", "ubicacion": "Prados del Este/Santa Fe", "telefono": "04149175436", "telefonoLink": "+584149175436"}, {"nombre": "Sandra Alvarez", "universidad": "Unimet", "anio": "2012", "ubicacion": "El Hatillo", "telefono": "04241456675", "telefonoLink": "+584241456675"}, {"nombre": "Sandra Palacios", "universidad": "USM", "anio": "1996", "ubicacion": "La California Sur", "telefono": "04241342750", "telefonoLink": "+584241342750"}, {"nombre": "Santiago Pereira", "universidad": "UCAB", "anio": "2026", "ubicacion": "Colinas de Bello Monte", "telefono": "04143156994", "telefonoLink": "+584143156994"}, {"nombre": "Sebastián Cova", "universidad": "UCV", "anio": "2025", "ubicacion": "Caricuao", "telefono": "04245132309", "telefonoLink": "+584245132309"}, {"nombre": "Sebastián Olalquiaga", "universidad": "Unimet", "anio": "2023", "ubicacion": "Chacao", "telefono": "04146212573", "telefonoLink": "+584146212573"}, {"nombre": "Shaiel Centeno", "universidad": "Unimet", "anio": "2024", "ubicacion": "Lechería, Anzoátegui", "telefono": "04248065170", "telefonoLink": "+584248065170"}, {"nombre": "Stephanie Dávila", "universidad": "Unimet", "anio": "2025", "ubicacion": "Terrazas del Ávila", "telefono": "04125533104", "telefonoLink": "+584125533104"}, {"nombre": "Ulises Linares", "universidad": "UCAB", "anio": "2024", "ubicacion": "El Paraíso", "telefono": "04243671607", "telefonoLink": "+584243671607"}, {"nombre": "Vanessa Sosa", "universidad": "UCAB Guayana", "anio": "2011", "ubicacion": "Los Naranjos", "telefono": "04249071110", "telefonoLink": "+584249071110"}, {"nombre": "Veralucia Lemus", "universidad": "UCAB", "anio": "2024", "ubicacion": "Los Ruices", "telefono": "04241439325", "telefonoLink": "+584241439325"}, {"nombre": "Víctor Santana", "universidad": "Unimet", "anio": "2026", "ubicacion": "Terrazas del Ávila", "telefono": "04241614659", "telefonoLink": "+584241614659"}, {"nombre": "Victoria Romero", "universidad": "Unimet", "anio": "2025", "ubicacion": "Los Chaguaramos", "telefono": "04241650588", "telefonoLink": "+584241650588"}, {"nombre": "Wilneydi Medina", "universidad": "UCAB", "anio": "2024", "ubicacion": "Antimano", "telefono": "04242515624", "telefonoLink": "+584242515624"}];
+</script>
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:#F4EFE8;color:#1A1A1A;font-family:"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  @media (max-width:860px){
+    .rg-form2{grid-template-columns:1fr!important;}
+  }
+</style>
+</helmet>
+
+<div style="min-height:100%;background:#F4EFE8;">
+  <!-- HEADER SIMPLE -->
+  <div style="background:#1A3A5C;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3 L22 20 H2 Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+        <line x1="12" y1="9" x2="12" y2="15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="17.6" r="1.05" fill="#fff"/>
+      </svg>
+      <span style="font-family:Georgia,serif;font-size:17px;color:#fff;font-weight:600;">Revisa tu Grieta</span>
+    </a>
+    <div style="display:flex;gap:14px;align-items:center;">
+      <a href="index.html" style="text-decoration:none;color:rgba(255,255,255,0.8);font-size:13.5px;">← Inicio</a>
+      <a href="accion.html#formulario" style="text-decoration:none;color:rgba(255,255,255,0.8);font-size:13.5px;">Evaluar Grieta</a>
+    </div>
+  </div>
+
+<!-- 8d. DIRECTORIO COMPLETO -->
+  <section id="directorio" style="background:#F4EFE8;padding:62px 24px;border-top:1px solid #e3dccf;">
+    <div style="max-width:900px;margin:0 auto;">
+      <h2 style="font-family:Georgia,serif;font-size:32px;margin:0 0 10px;font-weight:600;">Directorio de Ingenieros</h2>
+      <p style="font-size:15px;line-height:1.6;color:#6B6358;margin:0 0 26px;">Contactos de egresados de ingeniería civil organizados por zona. Búscalos y llama directamente, sin necesidad de publicar un caso. Estos contactos no son verificados individualmente por esta plataforma.</p>
+
+      <div style="background:#fff;border:1px solid #CCC2B4;border-radius:12px;padding:22px;">
+        <div class="rg-form2" style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:8px;">
+          <input type="text" value="{{ dirPageQuery }}" onInput="{{ onDirPageSearch }}" placeholder="Busca por zona, ej: Santa Fe, Chacao…" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;"/>
+          <select onChange="{{ onDirPageUniSelect }}" style="width:100%;padding:11px 13px;border:1px solid #CCC2B4;border-radius:8px;font-size:14.5px;font-family:inherit;background:#fff;color:#1A1A1A;">
+            <option value="">Todas las universidades</option>
+            <sc-for list="{{ universidadesView }}" as="uni" hint-placeholder-count="0">
+              <option value="{{ uni.value }}" selected="{{ uni.isSelected }}">{{ uni.value }}</option>
+            </sc-for>
+          </select>
+        </div>
+        <p style="font-size:12.5px;color:#9a9285;margin:0 0 18px;">{{ dirResultsCount }} ingenieros encontrados</p>
+
+        <sc-if value="{{ dirHasGroups }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <sc-for list="{{ dirGroupsView }}" as="grp" hint-placeholder-count="0">
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#1A3A5C;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #eee6d8;">{{ grp.zona }} <span style="font-weight:400;color:#9a9285;font-size:12.5px;">({{ grp.count }})</span></div>
+                <div style="display:flex;flex-direction:column;gap:7px;">
+                  <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="0">
+                    <a href="{{ d.telLink }}" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F4EFE8;border:1px solid #e3dccf;border-radius:8px;padding:10px 13px;">
+                      <span style="display:flex;flex-direction:column;gap:1px;">
+                        <span style="font-size:13.5px;color:#1A1A1A;font-weight:700;">{{ d.nombre }}</span>
+                        <span style="font-size:11.5px;color:#6B6358;">{{ d.universidad }} · Egresado {{ d.anio }}</span>
+                      </span>
+                      <span style="font-size:12.5px;color:#fff;font-weight:700;background:#1A3A5C;padding:7px 12px;border-radius:999px;white-space:nowrap;">📞 {{ d.telefono }}</span>
+                    </a>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ dirNoGroups }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:30px 0;color:#9a9285;font-size:14px;">No se encontraron ingenieros con esos filtros. Prueba con otra zona o universidad.</div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- FOOTER -->
+  <footer style="background:#111;color:rgba(255,255,255,0.7);padding:40px 24px;">
+    <div style="max-width:1140px;margin:0 auto;text-align:center;">
+      <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:rgba(255,255,255,0.8);">Revisa tu Grieta — Herramienta ciudadana post-sísmica. No sustituye inspección profesional.</p>
+      <p style="font-size:14px;margin:0 0 16px;color:rgba(255,255,255,0.6);">Protección Civil: 171 · Bomberos: 166</p>
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center;font-size:13.5px;color:rgba(255,255,255,0.55);flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;">Inicio</a>
+        <span style="opacity:0.4;">·</span>
+        <a href="accion.html#formulario" style="text-decoration:none;">Evaluar Grieta</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { dirPageQuery: "", dirPageUniversidad: "" };
+
+  onDirPageSearch = (e) => this.setState({ dirPageQuery: e.target.value });
+  onDirPageUniSelect = (e) => this.setState({ dirPageUniversidad: e.target.value });
+
+  renderVals() {
+    const fullDir = window.rgDirectorioIngenieros || [];
+    const universidadesUnicas = [...new Set(fullDir.map(d => d.universidad).filter(Boolean))].sort();
+    const universidadesView = universidadesUnicas.map(u => ({ value: u, isSelected: u === this.state.dirPageUniversidad }));
+
+    let dirFiltered = fullDir;
+    if (this.state.dirPageQuery.trim().length >= 2) {
+      const q = this.state.dirPageQuery.toLowerCase().trim();
+      dirFiltered = dirFiltered.filter(d => d.ubicacion.toLowerCase().includes(q));
+    }
+    if (this.state.dirPageUniversidad) {
+      dirFiltered = dirFiltered.filter(d => d.universidad === this.state.dirPageUniversidad);
+    }
+    const groupsMap = {};
+    dirFiltered.forEach(d => {
+      if (!groupsMap[d.ubicacion]) groupsMap[d.ubicacion] = [];
+      groupsMap[d.ubicacion].push(d);
+    });
+    const dirGroupsView = Object.keys(groupsMap).sort().map(zona => ({
+      zona, count: groupsMap[zona].length,
+      items: groupsMap[zona].map(d => ({
+        nombre: d.nombre, universidad: d.universidad, anio: d.anio, telefono: d.telefono,
+        telLink: `tel:${d.telefonoLink}`
+      }))
+    }));
+
+    return {
+      dirPageQuery: this.state.dirPageQuery,
+      onDirPageSearch: this.onDirPageSearch,
+      onDirPageUniSelect: this.onDirPageUniSelect,
+      universidadesView,
+      dirResultsCount: dirFiltered.length,
+      dirGroupsView, dirHasGroups: dirGroupsView.length > 0, dirNoGroups: dirGroupsView.length === 0
+    };
+  }
+}
+
+</script>
+</body>
+</html>
